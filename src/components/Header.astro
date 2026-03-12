@@ -30,7 +30,7 @@ const currentPath = Astro.url.pathname;
     <!-- デスクトップナビ -->
     <nav aria-label="メインナビゲーション" class="desktop-nav">
       {NAV_LINKS.map((link) => {
-        const fullHref = link.external ? link.href : `${import.meta.env.BASE_URL}${link.href.slice(1)}`;
+        const fullHref = link.external ? link.href : `${import.meta.env.BASE_URL}${link.href}`;
         const isActive = !link.external && currentPath.startsWith(fullHref);
         return (
           <a
@@ -74,7 +74,7 @@ const currentPath = Astro.url.pathname;
   <nav aria-label="モバイルナビゲーション" class="mobile-nav">
     {NAV_LINKS.map((link) => (
       <a
-        href={link.external ? link.href : `${import.meta.env.BASE_URL}${link.href.slice(1)}`}
+        href={link.external ? link.href : `${import.meta.env.BASE_URL}${link.href}`}
         target={link.external ? '_blank' : undefined}
         rel={link.external ? 'noopener noreferrer' : undefined}
         class="mobile-nav-item"
