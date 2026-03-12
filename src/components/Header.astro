@@ -1,0 +1,362 @@
+---
+/**
+ * Header.astro — V3
+ * - インラインJSハンドラを完全排除
+ * - CSS クラスのみでホバー・スクロール状態を管理
+ * - ハンバーガーアニメーションをdataset + CSS Transitionで実装
+ */
+import { NAV_LINKS, SITE } from '@/config';
+
+interface Props {
+  heroPage?: boolean;
+}
+const { heroPage = false } = Astro.props;
+const currentPath = Astro.url.pathname;
+---
+
+<header
+  id="site-header"
+  class:list={['site-header', heroPage ? 'hero-mode' : 'solid-mode']}
+  aria-label="サイトヘッダー"
+>
+  <div class="site-container header-inner">
+
+    <!-- ロゴ -->
+    <a href="/" class="logo-link" aria-label={`${SITE.name} トップページへ`}>
+      <span class="logo-main">{SITE.name}</span>
+      <span class="logo-sub">{SITE.nameEn}</span>
+    </a>
+
+    <!-- デスクトップナビ -->
+    <nav aria-label="メインナビゲーション" class="desktop-nav">
+      {NAV_LINKS.map((link) => {
+        const isActive = !link.external && currentPath.startsWith(link.href);
+        return (
+          <a
+            href={link.href}
+            target={link.external ? '_blank' : undefined}
+            rel={link.external ? 'noopener noreferrer' : undefined}
+            aria-current={isActive ? 'page' : undefined}
+            class:list={['nav-item', isActive && 'is-active']}
+          >
+            {link.label}
+            <span class="nav-underline" aria-hidden="true" />
+          </a>
+        );
+      })}
+    </nav>
+
+    <!-- ハンバーガー -->
+    <button
+      id="menu-toggle"
+      class="hamburger"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+      aria-label="メニューを開く"
+    >
+      <span class="hb-line hb-top" aria-hidden="true" />
+      <span class="hb-line hb-mid" aria-hidden="true" />
+      <span class="hb-line hb-bot" aria-hidden="true" />
+    </button>
+  </div>
+</header>
+
+<!-- モバイルオーバーレイ -->
+<div
+  id="mobile-menu"
+  class="mobile-overlay"
+  role="dialog"
+  aria-label="モバイルメニュー"
+  aria-modal="true"
+  aria-hidden="true"
+>
+  <nav aria-label="モバイルナビゲーション" class="mobile-nav">
+    {NAV_LINKS.map((link) => (
+      <a
+        href={link.href}
+        target={link.external ? '_blank' : undefined}
+        rel={link.external ? 'noopener noreferrer' : undefined}
+        class="mobile-nav-item"
+        tabindex="-1"
+      >
+        <span class="mobile-label">{link.label}</span>
+        <span class="mobile-sub">{link.labelJa}</span>
+      </a>
+    ))}
+  </nav>
+  <a
+    href={SITE.twitterUrl}
+    target="_blank"
+    rel="noopener noreferrer"
+    class="mobile-twitter"
+    tabindex="-1"
+    aria-label="X (Twitter)"
+  >
+    X @Misosiru_City
+  </a>
+</div>
+
+<script>
+  (() => {
+    const header    = document.getElementById('site-header')!;
+    const toggle    = document.getElementById('menu-toggle')!;
+    const menu      = document.getElementById('mobile-menu')!;
+    const isHero    = header.classList.contains('hero-mode');
+    let menuOpen    = false;
+    let scrolled    = window.scrollY > 20;
+
+    // --- ヘッダー状態の適用 ---
+    function applyState() {
+      const needsBg = menuOpen || scrolled || !isHero;
+      header.dataset.solidBg = needsBg ? 'true' : 'false';
+      // ヒーロー透明時だけロゴ・ナビを白に
+      header.dataset.lightText = (!needsBg).toString();
+    }
+
+    // --- スクロール監視 ---
+    window.addEventListener('scroll', () => {
+      scrolled = window.scrollY > 20;
+      if (!menuOpen) applyState();
+    }, { passive: true });
+
+    // --- メニュー開閉 ---
+    toggle.addEventListener('click', () => {
+      menuOpen = !menuOpen;
+      toggle.setAttribute('aria-expanded', String(menuOpen));
+      toggle.dataset.open = String(menuOpen);
+      menu.setAttribute('aria-hidden', String(!menuOpen));
+      menu.dataset.open = String(menuOpen);
+      document.body.style.overflow = menuOpen ? 'hidden' : '';
+
+      // モバイルリンクのフォーカス制御
+      menu.querySelectorAll<HTMLElement>('[tabindex]').forEach(el => {
+        el.setAttribute('tabindex', menuOpen ? '0' : '-1');
+      });
+
+      applyState();
+    });
+
+    // モバイルリンクでメニューを閉じる
+    menu.querySelectorAll('.mobile-nav-item').forEach(link => {
+      link.addEventListener('click', () => {
+        menuOpen = false;
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.dataset.open = 'false';
+        menu.setAttribute('aria-hidden', 'true');
+        menu.dataset.open = 'false';
+        document.body.style.overflow = '';
+        menu.querySelectorAll<HTMLElement>('[tabindex]').forEach(el => el.setAttribute('tabindex', '-1'));
+        applyState();
+      });
+    });
+
+    // Esc キー
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && menuOpen) toggle.click();
+    });
+
+    // 初期化
+    applyState();
+
+    // View Transitions 後に再初期化
+    document.addEventListener('astro:page-load', () => {
+      menuOpen = false;
+      scrolled = window.scrollY > 20;
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.dataset.open = 'false';
+      menu.setAttribute('aria-hidden', 'true');
+      menu.dataset.open = 'false';
+      document.body.style.overflow = '';
+      applyState();
+    });
+  })();
+</script>
+
+<style>
+/* ===== ヘッダー基本 ===== */
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  transition: background-color 0.35s ease, border-color 0.35s ease, backdrop-filter 0.35s ease;
+  border-bottom: 1px solid transparent;
+}
+
+/* 背景あり状態 */
+.site-header[data-solid-bg="true"] {
+  background-color: rgba(248, 247, 244, 0.97);
+  border-bottom-color: #E5E4E0;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* 非ヒーローページは初期から背景あり */
+.site-header.solid-mode {
+  background-color: rgba(248, 247, 244, 0.97);
+  border-bottom-color: #E5E4E0;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 72px;
+}
+
+/* ===== ロゴ ===== */
+.logo-link {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+  gap: 0.2rem;
+}
+.logo-main {
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: #1C1C1A;
+  transition: color 0.2s;
+}
+.logo-sub {
+  font-size: 0.55rem;
+  letter-spacing: 0.28em;
+  color: #6B6B68;
+  transition: color 0.2s;
+}
+.logo-link:hover .logo-main { color: #C9A96E; }
+
+/* ヒーロー透明時: 白テキスト */
+.site-header[data-light-text="true"] .logo-main { color: #ffffff; }
+.site-header[data-light-text="true"] .logo-sub  { color: rgba(255,255,255,0.55); }
+
+/* ===== デスクトップナビ ===== */
+.desktop-nav {
+  display: none;
+  align-items: center;
+  gap: 2rem;
+}
+@media (min-width: 768px) {
+  .desktop-nav { display: flex; }
+}
+
+.nav-item {
+  position: relative;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #6B6B68;
+  transition: color 0.2s;
+}
+.nav-item:hover,
+.nav-item.is-active { color: #1C1C1A; }
+.nav-item .nav-underline {
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  height: 1px;
+  background-color: #C9A96E;
+  width: 0;
+  transition: width 0.3s ease;
+}
+.nav-item.is-active .nav-underline,
+.nav-item:hover .nav-underline { width: 100%; }
+
+/* ヒーロー透明時: 白テキスト */
+.site-header[data-light-text="true"] .nav-item { color: rgba(255,255,255,0.6); }
+.site-header[data-light-text="true"] .nav-item:hover,
+.site-header[data-light-text="true"] .nav-item.is-active { color: #fff; }
+
+/* ===== ハンバーガー ===== */
+.hamburger {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 5px;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+@media (min-width: 768px) { .hamburger { display: none; } }
+
+.hb-line {
+  display: block;
+  height: 1px;
+  background-color: #1C1C1A;
+  transform-origin: center;
+  transition: transform 0.3s ease, opacity 0.3s ease, width 0.3s ease;
+}
+.hb-top, .hb-mid { width: 24px; }
+.hb-bot          { width: 16px; }
+
+/* 開いた状態 */
+.hamburger[data-open="true"] .hb-top { transform: translateY(6px) rotate(45deg); }
+.hamburger[data-open="true"] .hb-mid { opacity: 0; }
+.hamburger[data-open="true"] .hb-bot { transform: translateY(-6px) rotate(-45deg); width: 24px; }
+
+/* ヒーロー透明時 */
+.site-header[data-light-text="true"] .hb-line { background-color: #ffffff; }
+
+/* ===== モバイルオーバーレイ ===== */
+.mobile-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background-color: #F8F7F4;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.mobile-overlay[data-open="true"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mobile-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.5rem;
+}
+.mobile-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+.mobile-label {
+  font-size: 2rem;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #1C1C1A;
+  transition: color 0.2s;
+}
+.mobile-sub {
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  color: #6B6B68;
+}
+.mobile-nav-item:hover .mobile-label { color: #C9A96E; }
+
+.mobile-twitter {
+  position: absolute;
+  bottom: 2rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  color: #6B6B68;
+  transition: color 0.2s;
+}
+.mobile-twitter:hover { color: #1C1C1A; }
+</style>

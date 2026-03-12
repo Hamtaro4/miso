@@ -1,0 +1,304 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getEntry } from 'astro:content';
+import { CONTACT_FORM_URL, SITE } from '@/config';
+
+// ABOUTページのテキストを content/pages/about.md から読み込む
+const pageContent = await getEntry('pages', 'about');
+const pd = pageContent.data;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'AboutPage',
+  name: `ABOUT | ${SITE.name}`,
+  description: '味噌汁市は、マインクラフトで現代日本の郊外都市を忠実に再現するクリエイティブ集団です。2020年発足、約25名が参加。',
+  url: `${SITE.url}/about`,
+};
+
+const history  = pd.history  ?? [];
+const policies = pd.policies ?? [];
+const roles    = pd.roles    ?? [];
+const stats    = pd.stats    ?? [];
+---
+
+<BaseLayout
+  title="ABOUT"
+  description="味噌汁市は、マインクラフトで現代日本の郊外都市を忠実に再現するクリエイティブ集団です。2020年7月発足、約25名のメンバーが参加しています。"
+  jsonLd={jsonLd}
+>
+
+  <!-- ヒーロー -->
+  <div class="about-hero">
+    <div class="hero-grid" aria-hidden="true"></div>
+    <div class="hero-content site-container">
+      <p class="hero-eyebrow label">About Us</p>
+      <h1 class="hero-title">
+        {(pd.heroTitle ?? "マインクラフトで、\n日本の街を作る。").split('\n').map((line, i) => (
+          i > 0 ? <><br />{line}</> : <>{line}</>
+        ))}
+      </h1>
+    </div>
+  </div>
+
+  <!-- 数字で見る味噌汁市 -->
+  <section class="stats-section site-container" aria-label="活動実績">
+    <ul class="stats-list">
+      {stats.map(s => (
+        <li class="stat-item">
+          <span class="stat-num">{s.num}</span>
+          <span class="stat-label">{s.label}</span>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <!-- コンセプト -->
+  <section class="concept-section site-container" aria-labelledby="concept-heading">
+    <div class="two-col">
+      <div class="col-label">
+        <p class="label" id="concept-heading">Concept</p>
+      </div>
+      <div class="col-body">
+        <p class="concept-lead">
+          {pd.conceptLead ?? ""}
+        </p>
+        {(pd.conceptBody ?? []).map(p => (
+          <p class="body-text">{p}</p>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 活動方針 -->
+  <section class="policies-section site-container" aria-labelledby="policies-heading">
+    <div class="two-col">
+      <div class="col-label">
+        <p class="label" id="policies-heading">Policy</p>
+      </div>
+      <div class="col-body">
+        <ul class="policies-list">
+          {policies.map((p, i) => (
+            <li class="policy-item">
+              <div class="policy-header">
+                <span class="policy-num label">0{i + 1}</span>
+                <h3 class="policy-en">{p.en}</h3>
+              </div>
+              <div class="policy-body">
+                <p class="policy-ja">{p.ja}</p>
+                <p class="body-text">{p.desc}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- メンバー -->
+  <section class="member-section site-container" aria-labelledby="member-heading">
+    <div class="two-col">
+      <div class="col-label">
+        <p class="label" id="member-heading">Members</p>
+      </div>
+      <div class="col-body">
+        <ul class="role-list">
+          {roles.map(r => (
+            <li class="role-item">
+              <span class="role-name">{r.name}</span>
+              <span class="role-desc">{r.desc}</span>
+            </li>
+          ))}
+        </ul>
+        <p class="join-note body-text">
+          全員ボランティア参加です。一緒に街を作りたい方は
+          <a href="/recruit" class="inline-link">制作員募集ページ</a>をご覧ください。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 沿革 -->
+  <section class="history-section site-container" aria-labelledby="history-heading">
+    <div class="two-col">
+      <div class="col-label">
+        <p class="label" id="history-heading">History</p>
+      </div>
+      <div class="col-body">
+        <ol class="timeline">
+          {history.map((item, i) => (
+            <li class="timeline-item">
+              <span class="tl-date label">{item.date}</span>
+              <span class="tl-bar" aria-hidden="true">
+                <span class="tl-dot"></span>
+                {i < history.length - 1 && <span class="tl-line"></span>}
+              </span>
+              <p class="tl-text">{item.text}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  </section>
+
+</BaseLayout>
+
+<style>
+/* ——— ヒーロー ——— */
+.about-hero {
+  position: relative;
+  background: #1C1C1A;
+  padding: 10rem 0 7rem;
+  overflow: hidden;
+}
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(248,247,244,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(248,247,244,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+.hero-content { position: relative; z-index: 1; }
+.hero-eyebrow { color: rgba(248,247,244,0.35); margin-bottom: 1.75rem; }
+.hero-title {
+  font-size: clamp(2.25rem, 6vw, 4.5rem);
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  color: #F8F7F4;
+}
+
+/* ——— 数字 ——— */
+.stats-section {
+  padding: 4rem 0;
+  border-bottom: 1px solid #E5E4E0;
+}
+.stats-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  list-style: none;
+  padding: 0;
+}
+@media (min-width: 768px) {
+  .stats-list { grid-template-columns: repeat(4, 1fr); }
+}
+.stat-item { display: flex; flex-direction: column; gap: 0.3rem; }
+.stat-num {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  color: #1C1C1A;
+  line-height: 1;
+}
+.stat-label { font-size: 0.75rem; color: #6B6B68; letter-spacing: 0.05em; }
+
+/* ——— 共通 2カラムレイアウト ——— */
+.concept-section  { padding: 5rem 0; border-bottom: 1px solid #E5E4E0; }
+.policies-section { padding: 5rem 0; border-bottom: 1px solid #E5E4E0; }
+.member-section   { padding: 5rem 0; border-bottom: 1px solid #E5E4E0; }
+.history-section  { padding: 5rem 0 8rem; }
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+@media (min-width: 768px) {
+  .two-col { grid-template-columns: 140px 1fr; gap: 4rem; align-items: start; }
+}
+.col-label { padding-top: 0.15rem; }
+
+.concept-lead {
+  font-size: 1.05rem;
+  font-weight: 400;
+  line-height: 1.8;
+  color: #1C1C1A;
+  margin-bottom: 1.5rem;
+}
+.body-text {
+  font-size: 0.875rem;
+  color: #6B6B68;
+  line-height: 1.95;
+  margin-bottom: 1rem;
+}
+
+/* ——— 活動方針 ——— */
+.policies-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0; }
+.policy-item {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  padding: 2rem 0;
+  border-top: 1px solid #E5E4E0;
+}
+@media (min-width: 640px) {
+  .policy-item { grid-template-columns: 9rem 1fr; gap: 2rem; align-items: start; }
+}
+.policy-header { display: flex; flex-direction: column; gap: 0.3rem; }
+.policy-num { color: #C9A96E; }
+.policy-en  { font-size: 0.95rem; font-weight: 500; }
+.policy-ja  { font-size: 0.75rem; color: #6B6B68; margin-bottom: 0.5rem; }
+
+/* ——— メンバー役割 ——— */
+.role-list {
+  list-style: none;
+  padding: 0;
+  border-top: 1px solid #E5E4E0;
+  margin-bottom: 2rem;
+}
+.role-item {
+  display: grid;
+  grid-template-columns: 8rem 1fr;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid #E5E4E0;
+}
+.role-name { font-size: 0.8rem; font-weight: 500; color: #1C1C1A; }
+.role-desc { font-size: 0.8rem; color: #6B6B68; line-height: 1.6; }
+.join-note { margin-top: 1rem; }
+.inline-link {
+  color: #1C1C1A;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 1px;
+  transition: color 0.2s;
+}
+.inline-link:hover { color: #C9A96E; }
+
+/* ——— タイムライン ——— */
+.timeline { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0; }
+.timeline-item {
+  display: grid;
+  grid-template-columns: 7rem 1.5rem 1fr;
+  gap: 0.5rem 1rem;
+  align-items: start;
+}
+.tl-date { font-size: 0.7rem; color: #6B6B68; padding-top: 0.15rem; text-align: right; }
+.tl-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  padding-top: 0.2rem;
+}
+.tl-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #C9A96E;
+  flex-shrink: 0;
+}
+.tl-line {
+  width: 1px;
+  flex: 1;
+  min-height: 2rem;
+  background: #E5E4E0;
+  margin-top: 4px;
+}
+.tl-text {
+  font-size: 0.875rem;
+  color: #1C1C1A;
+  line-height: 1.7;
+  padding-bottom: 1.75rem;
+}
+</style>

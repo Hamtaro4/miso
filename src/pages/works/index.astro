@@ -1,0 +1,108 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import WorkCard from '@/components/WorkCard.astro';
+import { SITE } from '@/config';
+
+const allWorks = await getCollection('works', ({ data }) => !data.draft);
+const works = allWorks.sort((a, b) =>
+  b.data.year - a.data.year || b.data.pubDate.getTime() - a.data.pubDate.getTime()
+);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: `WORKS | ${SITE.name}`,
+  url: `${SITE.url}/works`,
+  breadcrumb: {
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'ホーム', item: SITE.url },
+      { '@type': 'ListItem', position: 2, name: 'WORKS', item: `${SITE.url}/works` },
+    ],
+  },
+};
+---
+
+<BaseLayout
+  title="WORKS"
+  description="味噌汁市の建築・都市デザインの作品一覧。住宅、公共空間、リノベーションなど、まちを作る建築の実績を紹介します。"
+  jsonLd={jsonLd}
+>
+  <div class="page-header site-container">
+    <p class="label" style="margin-bottom:0.75rem;">Portfolio</p>
+    <h1 class="page-title-text">WORKS</h1>
+  </div>
+
+  <section class="works-section site-container" aria-label="作品一覧">
+    {works.length === 0 ? (
+      <p class="empty-msg">作品を準備中です。</p>
+    ) : (
+      <div class="works-grid">
+        {works.map((w, i) => (
+          <WorkCard
+            slug={w.slug}
+            title={w.data.title}
+            titleEn={w.data.titleEn}
+            category={w.data.category}
+            year={w.data.year}
+            mainImage={w.data.mainImage}
+            index={i}
+          />
+        ))}
+      </div>
+    )}
+  </section>
+</BaseLayout>
+
+<script>
+  function initScrollReveal() {
+    const cards = document.querySelectorAll<HTMLElement>('.wc-wrap');
+    if (!cards.length) return;
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            io.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -60px 0px' }
+    );
+
+    cards.forEach((card) => io.observe(card));
+  }
+
+  initScrollReveal();
+  document.addEventListener('astro:page-load', initScrollReveal);
+</script>
+
+<style>
+.page-header {
+  padding-top: 10rem;
+  padding-bottom: 3.5rem;
+}
+.page-title-text {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+}
+
+.works-section { padding-bottom: 8rem; }
+
+.works-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5px;
+}
+@media (min-width: 640px) {
+  .works-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (min-width: 1200px) {
+  .works-grid { grid-template-columns: 1fr 1fr 1fr; }
+}
+
+.empty-msg { text-align: center; color: #6B6B68; padding: 6rem 0; }
+</style>

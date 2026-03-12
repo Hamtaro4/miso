@@ -1,0 +1,235 @@
+---
+import { getCollection, getEntry } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import HeroSection from '@/components/HeroSection.astro';
+import WorkCard from '@/components/WorkCard.astro';
+import NewsCard from '@/components/NewsCard.astro';
+import { SITE, CONTACT_FORM_URL } from '@/config';
+
+// トップページのテキストを content/pages/index.md から読み込む
+const pageContent = await getEntry('pages', 'index');
+const pd = pageContent.data;
+
+const allWorks = await getCollection('works', ({ data }) => !data.draft);
+const featured = allWorks
+  .filter(w => w.data.featured)
+  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime())
+  .slice(0, 4);
+
+const allNews = await getCollection('news', ({ data }) => !data.draft);
+const latestNews = allNews
+  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime())
+  .slice(0, 3);
+
+const HERO_IMAGE = '/images/hero.jpg';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: SITE.name,
+  url: SITE.url,
+  description: SITE.description,
+};
+---
+
+<BaseLayout
+  title={SITE.name}
+  heroPage={true}
+  heroImage={HERO_IMAGE}
+  jsonLd={jsonLd}
+>
+  <!-- ヒーロー -->
+  <HeroSection
+    image={HERO_IMAGE}
+    imageAlt="味噌汁市の建築作品"
+    title={pd.heroTitle ?? "建築で、まちを作る。"}
+    subtitle="MISOSIRU CITY"
+    ctaText="WORKS を見る"
+    ctaHref="/works"
+  />
+
+  <!-- Featured Works -->
+  <section class="works-section" aria-labelledby="works-heading">
+    <div class="site-container">
+      <div class="section-header">
+        <div>
+          <p class="label section-label-top">Portfolio</p>
+          <h2 id="works-heading" class="section-title">WORKS</h2>
+        </div>
+        <a href="/works" class="section-more-link label" aria-label="すべての作品を見る">
+          すべての作品
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+
+      <div class="works-grid">
+        {featured.map((w, i) => (
+          <WorkCard
+            slug={w.slug}
+            title={w.data.title}
+            titleEn={w.data.titleEn}
+            category={w.data.category}
+            mainImage={w.data.mainImage}
+            index={i}
+          />
+        ))}
+      </div>
+
+      <div class="section-more-mobile">
+        <a href="/works" class="label footer-link" aria-label="すべての作品を見る">
+          すべての作品を見る →
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <div class="site-container"><hr class="divider" /></div>
+
+  <!-- Latest News -->
+  <section class="news-section" aria-labelledby="news-heading">
+    <div class="site-container">
+      <div class="section-header">
+        <div>
+          <p class="label section-label-top">Information</p>
+          <h2 id="news-heading" class="section-title">NEWS</h2>
+        </div>
+        <a href="/news" class="section-more-link label" aria-label="すべてのお知らせを見る">
+          すべてのお知らせ
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+
+      <div class="news-list">
+        {latestNews.map(item => (
+          <NewsCard
+            slug={item.slug}
+            title={item.data.title}
+            pubDate={item.data.pubDate}
+            category={item.data.category}
+            description={item.data.description}
+            variant="compact"
+          />
+        ))}
+      </div>
+
+      <div class="section-more-mobile">
+        <a href="/news" class="label footer-link" aria-label="すべてのお知らせを見る">
+          すべてのお知らせを見る →
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- About CTA -->
+  <section class="cta-section" aria-labelledby="cta-heading">
+    <div class="site-container cta-inner">
+      <p class="label cta-label">About</p>
+      <h2 id="cta-heading" class="cta-title">
+        {(pd.ctaTitle ?? "まちを、\n一緒につくりませんか。").split('\n').map((line, i) => (
+          i > 0 ? <><br />{line}</> : <>{line}</>
+        ))}
+      </h2>
+      <p class="cta-body">
+        {pd.ctaBody ?? "味噌汁市は、建築・都市デザインを通じてまちの可能性を探るクリエイティブ集団です。多様なバックグラウンドを持つメンバーとともに活動しています。"}
+      </p>
+      <div class="cta-actions">
+        <a href="/recruit" class="btn-outline-light">
+          制作員募集
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+        <a href={CONTACT_FORM_URL} target="_blank" rel="noopener noreferrer" class="btn-ghost-light">
+          お問い合わせ
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+/* Works section */
+.works-section { padding: 6rem 0 4rem; }
+.news-section  { padding: 5rem 0 6rem; }
+
+.section-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 2.5rem;
+}
+.section-label-top { margin-bottom: 0.5rem; }
+.section-title {
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 300;
+  letter-spacing: -0.01em;
+}
+.section-more-link {
+  display: none;
+  align-items: center;
+  gap: 0.4rem;
+  color: #6B6B68;
+  transition: color 0.2s;
+}
+.section-more-link:hover { color: #1C1C1A; }
+@media (min-width: 768px) {
+  .section-more-link { display: flex; }
+}
+.section-more-mobile {
+  margin-top: 2.5rem;
+  text-align: center;
+}
+@media (min-width: 768px) {
+  .section-more-mobile { display: none; }
+}
+
+.works-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem 2.5rem;
+}
+@media (min-width: 768px) {
+  .works-grid { grid-template-columns: 1fr 1fr; gap: 2.5rem 2.5rem; }
+}
+
+.news-list { max-width: 48rem; }
+.divider { border: none; border-top: 1px solid #E5E4E0; }
+
+/* CTA section */
+.cta-section {
+  background-color: #1C1C1A;
+  color: #F8F7F4;
+  padding: 6rem 0;
+}
+.cta-inner { text-align: center; }
+.cta-label { color: rgba(248,247,244,0.35); margin-bottom: 1.5rem; }
+.cta-title {
+  font-size: clamp(1.75rem, 4vw, 3rem);
+  font-weight: 300;
+  line-height: 1.35;
+  margin-bottom: 1.5rem;
+}
+.cta-body {
+  font-size: 0.875rem;
+  color: rgba(248,247,244,0.6);
+  line-height: 1.9;
+  max-width: 36rem;
+  margin: 0 auto 2.5rem;
+}
+.cta-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+@media (min-width: 480px) {
+  .cta-actions { flex-direction: row; justify-content: center; }
+}
+</style>

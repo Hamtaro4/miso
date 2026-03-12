@@ -1,0 +1,64 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import NewsCard from '@/components/NewsCard.astro';
+import { SITE } from '@/config';
+
+const allNews = await getCollection('news', ({ data }) => !data.draft);
+const news = allNews.sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Blog',
+  name: `NEWS | ${SITE.name}`,
+  url: `${SITE.url}/news`,
+  breadcrumb: {
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'ホーム', item: SITE.url },
+      { '@type': 'ListItem', position: 2, name: 'NEWS',  item: `${SITE.url}/news` },
+    ],
+  },
+};
+---
+
+<BaseLayout
+  title="NEWS"
+  description="味噌汁市からのお知らせ、メディア掲載、イベント情報などをお届けします。"
+  jsonLd={jsonLd}
+>
+  <div class="page-header site-container">
+    <p class="label" style="margin-bottom:0.75rem;">Information</p>
+    <h1 class="page-title-text">NEWS</h1>
+  </div>
+
+  <section class="site-container news-body" aria-label="ニュース一覧">
+    <div class="news-list">
+      {news.map(item => (
+        <NewsCard
+          slug={item.slug}
+          title={item.data.title}
+          pubDate={item.data.pubDate}
+          category={item.data.category}
+          description={item.data.description}
+        />
+      ))}
+      {news.length === 0 && (
+        <p class="empty-msg">お知らせはまだありません。</p>
+      )}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+.page-header { padding-top: 10rem; padding-bottom: 3.5rem; }
+.page-title-text {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+}
+.news-body  { padding-bottom: 8rem; }
+/* ニュースリストを適切な最大幅に制限（コンテナのpaddingは既にあるため max-w のみ） */
+.news-list  { max-width: 48rem; }
+.empty-msg  { text-align: center; color: #6B6B68; padding: 6rem 0; }
+</style>

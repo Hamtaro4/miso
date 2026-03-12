@@ -1,0 +1,122 @@
+---
+interface Props {
+  slug: string;
+  title: string;
+  titleEn?: string;
+  category: string;
+  mainImage: string;
+  index?: number;
+}
+const { slug, title, titleEn, category, mainImage, index = 0 } = Astro.props;
+---
+
+<article class="wc-wrap" data-index={index}>
+  <a href={`/works/${slug}`} class="wc-link" aria-label={`${title} — 詳細を見る`}>
+    <div class="wc-img img-placeholder">
+      <img
+        src={mainImage}
+        alt={titleEn ? `${title} / ${titleEn}` : title}
+        width="800"
+        height="600"
+        loading="lazy"
+        decoding="async"
+        data-fallback
+      />
+      <div class="wc-overlay" aria-hidden="true">
+        <div class="wc-overlay-inner">
+          <p class="wc-cat">{category}</p>
+          <h3 class="wc-title">{title}</h3>
+          {titleEn && <p class="wc-en">{titleEn}</p>}
+          <span class="wc-arrow">→</span>
+        </div>
+      </div>
+    </div>
+  </a>
+</article>
+
+<style>
+.wc-wrap {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+/* stagger: 偶数番目は少し遅れて登場 */
+.wc-wrap[data-index="1"],
+.wc-wrap[data-index="3"],
+.wc-wrap[data-index="5"],
+.wc-wrap[data-index="7"] {
+  transition-delay: 0.12s;
+}
+.wc-wrap.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.wc-link { display: block; }
+
+.wc-img {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+.wc-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.65s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              filter 0.55s ease;
+}
+.wc-link:hover .wc-img img {
+  transform: scale(1.06);
+  filter: brightness(0.55);
+}
+
+/* オーバーレイ（ホバー時に表示） */
+.wc-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  padding: 2rem;
+  pointer-events: none;
+}
+.wc-overlay-inner {
+  transform: translateY(12px);
+  opacity: 0;
+  transition: opacity 0.4s ease 0.05s, transform 0.4s ease 0.05s;
+}
+.wc-link:hover .wc-overlay-inner {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.wc-cat {
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  color: rgba(248,247,244,0.6);
+  margin-bottom: 0.4rem;
+  text-transform: uppercase;
+}
+.wc-title {
+  font-size: 1.15rem;
+  font-weight: 400;
+  color: #F8F7F4;
+  line-height: 1.35;
+  margin-bottom: 0.25rem;
+}
+.wc-en {
+  font-size: 0.7rem;
+  color: rgba(248,247,244,0.55);
+  margin-bottom: 0.75rem;
+}
+.wc-arrow {
+  display: inline-block;
+  font-size: 1rem;
+  color: #C9A96E;
+  transition: transform 0.25s ease;
+}
+.wc-link:hover .wc-arrow {
+  transform: translateX(4px);
+}
+</style>

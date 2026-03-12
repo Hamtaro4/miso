@@ -1,0 +1,143 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/* ===== デザイントークン ===== */
+@theme {
+  --color-primary:  #1C1C1A;
+  --color-surface:  #F8F7F4;
+  --color-accent:   #C9A96E;
+  --color-muted:    #6B6B68;
+  --color-border:   #E5E4E0;
+  --font-sans: "Noto Sans JP", "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+/* ===== リセット ===== */
+*, *::before, *::after { box-sizing: border-box; }
+html {
+  font-family: var(--font-sans);
+  background-color: #F8F7F4;
+  color: #1C1C1A;
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+body { min-height: 100vh; line-height: 1.8; overflow-x: hidden; }
+img  { max-width: 100%; height: auto; display: block; }
+a    { color: inherit; text-decoration: none; }
+
+/* ===== フォーカス (アクセシビリティ) ===== */
+:focus-visible {
+  outline: 2px solid #C9A96E;
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ===== スクロールバー ===== */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: #F8F7F4; }
+::-webkit-scrollbar-thumb { background: #E5E4E0; border-radius: 3px; }
+
+/* ===== コンテナ ===== */
+.site-container {
+  width: 100%;
+  max-width: 1400px;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+}
+@media (min-width: 768px) {
+  .site-container { padding-inline: 3rem; }
+}
+
+/* ===== タイポグラフィ ===== */
+.label {
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #6B6B68;
+}
+
+/* ===== 画像 ===== */
+.img-zoom { overflow: hidden; }
+.img-zoom img { transition: transform 0.5s ease; will-change: transform; }
+.img-zoom:hover img { transform: scale(1.04); }
+
+/* 画像プレースホルダー（写真なし時のグリッド背景） */
+.img-placeholder {
+  background-color: #EDEAE5;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 39px, #D8D3CC 39px, #D8D3CC 40px),
+    repeating-linear-gradient(90deg, transparent, transparent 39px, #D8D3CC 39px, #D8D3CC 40px);
+  position: relative;
+}
+
+/* 画像エラー時: Astro script が img に .img-error クラスを付与 */
+.img-error { display: none !important; }
+
+/* ===== インタラクション (V3: CSS onlyに移行) ===== */
+/* ナビゲーションリンク */
+.nav-link { color: #6B6B68; transition: color 0.2s; }
+.nav-link:hover, .nav-link[aria-current="page"] { color: #1C1C1A; }
+
+/* カードホバー */
+.card-link:hover .card-title { color: #C9A96E; }
+
+/* フッターリンク */
+.footer-link { color: #6B6B68; transition: color 0.2s; }
+.footer-link:hover { color: #1C1C1A; }
+
+/* ボタン */
+.btn-outline-dark {
+  display: inline-flex; align-items: center; gap: 0.75rem;
+  font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+  border: 1px solid #1C1C1A; padding: 0.875rem 1.75rem;
+  transition: background-color 0.3s, color 0.3s;
+}
+.btn-outline-dark:hover { background-color: #1C1C1A; color: #F8F7F4; }
+
+.btn-outline-light {
+  display: inline-flex; align-items: center; gap: 0.75rem;
+  font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+  border: 1px solid rgba(248,247,244,0.4); padding: 1rem 2rem; color: #F8F7F4;
+  transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+}
+.btn-outline-light:hover { background-color: #F8F7F4; border-color: #F8F7F4; color: #1C1C1A; }
+
+.btn-ghost-light {
+  display: inline-flex; align-items: center; gap: 0.75rem;
+  font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+  padding: 1rem 2rem; color: rgba(248,247,244,0.5);
+  transition: color 0.2s;
+}
+.btn-ghost-light:hover { color: rgba(248,247,244,0.9); }
+
+/* ヒーロー CTA */
+.hero-cta {
+  display: inline-flex; align-items: center; gap: 0.75rem;
+  font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: #fff; border: 1px solid rgba(255,255,255,0.45);
+  padding: 0.875rem 1.75rem;
+  transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+}
+.hero-cta:hover { background-color: #fff; border-color: #fff; color: #1C1C1A; }
+
+/* 前後ナビ */
+.prev-next-link:hover .nav-work-title { color: #C9A96E; }
+
+/* ===== View Transitions ===== */
+@view-transition { navigation: auto; }
+
+/* ===== Prose ===== */
+.prose { font-size: 0.9375rem; line-height: 2; color: #1C1C1A; }
+.prose h2 { font-size: 1.1rem; font-weight: 500; margin-top: 2rem; margin-bottom: 0.75rem; }
+.prose p { margin-bottom: 1.1rem; }
+.prose a { color: #C9A96E; text-decoration: underline; text-underline-offset: 3px; }
+.prose a:hover { opacity: 0.75; }
+.prose ul { list-style: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
+.prose li { margin-bottom: 0.3rem; }
+.prose strong { font-weight: 500; }
+
+/* ===== アニメーション ===== */
+@keyframes scrollDown {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(200%); }
+}

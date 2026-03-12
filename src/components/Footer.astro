@@ -1,0 +1,172 @@
+---
+import { NAV_LINKS, SNS_LINKS, SITE } from '@/config';
+---
+
+<footer class="site-footer" aria-label="サイトフッター">
+  <div class="site-container">
+    <div class="footer-inner">
+
+      <!-- ロゴ + キャッチコピー -->
+      <div class="footer-brand">
+        <a href="/" class="footer-logo">
+          <span class="footer-logo-main">{SITE.name}</span>
+          <span class="footer-logo-sub">{SITE.nameEn}</span>
+        </a>
+        <p class="footer-tagline">建築で、まちを作る。</p>
+      </div>
+
+      <!-- リンク群 -->
+      <div class="footer-links-area">
+        <nav aria-label="フッターナビゲーション" class="footer-nav">
+          {NAV_LINKS.map((link) => (
+            <a
+              href={link.href}
+              target={link.external ? '_blank' : undefined}
+              rel={link.external ? 'noopener noreferrer' : undefined}
+              class="footer-nav-item label"
+            >
+              {link.label}
+            </a>
+          ))}
+        </nav>
+
+        <!-- SNS -->
+        <div class="sns-row" aria-label="SNSリンク">
+          {SNS_LINKS.map((s) => (
+            <a
+              href={s.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="sns-link"
+              aria-label={s.label}
+            >
+              {s.icon === 'x' && (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+              )}
+              {s.icon === 'youtube' && (
+                <svg width="18" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+              )}
+              {s.icon === 'discord' && (
+                <svg width="18" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M20.317 4.492c-1.53-.69-3.17-1.2-4.885-1.49a.075.075 0 00-.079.036c-.21.369-.444.85-.608 1.23a18.566 18.566 0 00-5.487 0 12.36 12.36 0 00-.617-1.23A.077.077 0 008.562 3c-1.714.29-3.354.8-4.885 1.491a.07.07 0 00-.032.027C.533 9.093-.32 13.555.099 17.961a.08.08 0 00.031.055 20.03 20.03 0 005.993 2.98.078.078 0 00.084-.026c.462-.62.874-1.275 1.226-1.963.021-.04.001-.088-.041-.104a13.201 13.201 0 01-1.872-.878.075.075 0 01-.008-.125c.126-.093.252-.19.372-.287a.075.075 0 01.078-.01c3.927 1.764 8.18 1.764 12.061 0a.075.075 0 01.079.009c.12.098.245.195.372.288a.075.075 0 01-.006.125c-.598.344-1.22.635-1.873.877a.075.075 0 00-.041.105c.36.687.772 1.341 1.225 1.962a.077.077 0 00.084.028 19.963 19.963 0 006.002-2.981.076.076 0 00.032-.054c.5-5.094-.838-9.52-3.549-13.442a.06.06 0 00-.031-.028zM8.02 15.278c-1.182 0-2.157-1.069-2.157-2.38 0-1.312.956-2.38 2.157-2.38 1.21 0 2.176 1.077 2.157 2.38 0 1.312-.956 2.38-2.157 2.38zm7.975 0c-1.183 0-2.157-1.069-2.157-2.38 0-1.312.955-2.38 2.157-2.38 1.21 0 2.176 1.077 2.157 2.38 0 1.312-.946 2.38-2.157 2.38z"/>
+                </svg>
+              )}
+              {s.icon === 'external' && (
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                  <rect x="3" y="3" width="8" height="8" rx="1"/>
+                  <rect x="13" y="3" width="8" height="8" rx="1"/>
+                  <rect x="3" y="13" width="8" height="8" rx="1"/>
+                  <path d="M13 17h8M17 13v8" stroke-linecap="round"/>
+                </svg>
+              )}
+              <span class="sns-label">{s.label}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-copy">
+      <p>&copy; {new Date().getFullYear()} {SITE.name}. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+.site-footer {
+  border-top: 1px solid #E5E4E0;
+  margin-top: 0;
+  padding: 4.5rem 0 2.5rem;
+}
+.footer-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+@media (min-width: 768px) {
+  .footer-inner {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+}
+
+/* ブランド */
+.footer-brand {}
+.footer-logo {
+  display: inline-flex;
+  flex-direction: column;
+  line-height: 1;
+  gap: 0.2rem;
+  margin-bottom: 1rem;
+}
+.footer-logo-main {
+  font-size: 1.5rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: #1C1C1A;
+  transition: color 0.2s;
+}
+.footer-logo-sub {
+  font-size: 0.55rem;
+  letter-spacing: 0.28em;
+  color: #6B6B68;
+}
+.footer-logo:hover .footer-logo-main { color: #C9A96E; }
+.footer-tagline {
+  font-size: 0.8rem;
+  color: #6B6B68;
+}
+
+/* リンクエリア */
+.footer-links-area {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.75rem;
+}
+@media (min-width: 768px) {
+  .footer-links-area { align-items: flex-end; }
+}
+.footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 2rem;
+}
+.footer-nav-item { transition: color 0.2s; }
+.footer-nav-item:hover { color: #1C1C1A; }
+
+/* SNS */
+.sns-row {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+.sns-link {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #6B6B68;
+  transition: color 0.2s;
+  line-height: 1;
+}
+.sns-link:hover { color: #1C1C1A; }
+.sns-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  /* ラベルをアイコンのみ表示する場合は以下を有効に */
+  /* display: none; */
+}
+
+/* コピーライト */
+.footer-copy {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #E5E4E0;
+}
+.footer-copy p { font-size: 0.7rem; color: #6B6B68; }
+</style>

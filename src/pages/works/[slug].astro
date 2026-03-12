@@ -1,0 +1,306 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { SITE } from '@/config';
+
+export async function getStaticPaths() {
+  const works = await getCollection('works', ({ data }) => !data.draft);
+  return works.map(work => ({ params: { slug: work.slug }, props: { work } }));
+}
+
+interface Props { work: CollectionEntry<'works'>; }
+
+const { work } = Astro.props;
+const { data, slug } = work;
+const { Content } = await work.render();
+
+// 前後ナビ
+const allWorks = await getCollection('works', ({ data }) => !data.draft);
+const sorted = allWorks.sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+const idx  = sorted.findIndex(w => w.slug === slug);
+const prev = idx > 0                 ? sorted[idx - 1] : null;
+const next = idx < sorted.length - 1 ? sorted[idx + 1] : null;
+
+const meta = [
+  { label: 'カテゴリ', value: data.category },
+  { label: 'エリア',   value: data.location },
+];
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CreativeWork',
+  name: data.title,
+  description: data.description,
+  creator: { '@type': 'Organization', name: SITE.name },
+  dateCreated: data.pubDate.toISOString().slice(0, 10),
+  locationCreated: { '@type': 'Place', name: data.location },
+  image: `${SITE.url}${data.mainImage}`,
+  url: `${SITE.url}/works/${slug}`,
+  breadcrumb: {
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'ホーム', item: SITE.url },
+      { '@type': 'ListItem', position: 2, name: 'WORKS', item: `${SITE.url}/works` },
+      { '@type': 'ListItem', position: 3, name: data.title, item: `${SITE.url}/works/${slug}` },
+    ],
+  },
+};
+---
+
+<BaseLayout
+  title={data.title}
+  description={data.description}
+  ogImage={data.mainImage}
+  ogType="article"
+  heroImage={data.mainImage}
+  jsonLd={jsonLd}
+>
+  <!-- メイン画像 -->
+  <div class="work-hero img-placeholder">
+    <img
+      src={data.mainImage}
+      alt={data.titleEn ? `${data.title} / ${data.titleEn}` : data.title}
+      width="1920"
+      height="1080"
+      loading="eager"
+      fetchpriority="high"
+      class="work-hero-img"
+      data-fallback
+    />
+  </div>
+
+  <!-- パンくずリスト -->
+  <nav class="breadcrumb site-container" aria-label="パンくずリスト">
+    <ol class="breadcrumb-list">
+      <li><a href="/" class="bc-link">ホーム</a></li>
+      <li aria-hidden="true" class="bc-sep">›</li>
+      <li><a href="/works" class="bc-link">WORKS</a></li>
+      <li aria-hidden="true" class="bc-sep">›</li>
+      <li aria-current="page" class="bc-current">{data.title}</li>
+    </ol>
+  </nav>
+
+  <!-- プロジェクト詳細 -->
+  <article class="site-container work-detail">
+    <div class="work-detail-grid">
+
+      <!-- 本文 (モバイルでは下に) -->
+      <div class="work-content">
+        <h1 class="work-main-title">{data.title}</h1>
+        {data.titleEn && <p class="work-title-en">{data.titleEn}</p>}
+        <div class="prose">
+          <Content />
+        </div>
+      </div>
+
+      <!-- メタ情報 (モバイルでは上に) -->
+      <aside class="work-meta">
+        <dl class="meta-list">
+          {meta.map(({ label, value }) => (
+            <div class="meta-row">
+              <dt class="label meta-label">{label}</dt>
+              <dd class="meta-value">{value}</dd>
+            </div>
+          ))}
+          {data.creator && (
+            <div class="meta-row">
+              <dt class="label meta-label">製作者</dt>
+              <dd class="meta-value meta-creator">
+                <span>{data.creator}</span>
+                {data.creatorX && (
+                  <a
+                    href={`https://x.com/${data.creatorX.replace(/^@/, '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="creator-x-link"
+                    aria-label={`${data.creator} のXプロフィール`}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    </svg>
+                    {data.creatorX.startsWith('@') ? data.creatorX : `@${data.creatorX}`}
+                  </a>
+                )}
+              </dd>
+            </div>
+          )}
+        </dl>
+      </aside>
+    </div>
+
+    <!-- ギャラリー -->
+    {data.galleryImages.length > 0 && (
+      <div class="gallery">
+        <p class="label gallery-title">Gallery</p>
+        <div class="gallery-grid">
+          {data.galleryImages.map((img, i) => (
+            <div class="gallery-item img-zoom img-placeholder">
+              <img
+                src={img}
+                alt={`${data.title} — ギャラリー ${i + 1}`}
+                width="1200"
+                height="900"
+                loading="lazy"
+                decoding="async"
+                data-fallback
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+  </article>
+
+  <!-- 前後ナビ -->
+  <nav class="work-nav site-container" aria-label="作品ナビゲーション">
+    <div class="work-nav-inner">
+      {prev ? (
+        <a href={`/works/${prev.slug}`} class="prev-next-link">
+          <span class="label">← 前の作品</span>
+          <span class="nav-work-title">{prev.data.title}</span>
+        </a>
+      ) : <div />}
+      {next ? (
+        <a href={`/works/${next.slug}`} class="prev-next-link text-right">
+          <span class="label">次の作品 →</span>
+          <span class="nav-work-title">{next.data.title}</span>
+        </a>
+      ) : <div />}
+    </div>
+  </nav>
+</BaseLayout>
+
+<style>
+/* ヒーロー画像 */
+.work-hero {
+  width: 100%;
+  height: 65svh;
+  min-height: 320px;
+  max-height: 780px;
+  overflow: hidden;
+  background-color: #2a2826;
+}
+.work-hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* パンくず */
+.breadcrumb { padding-top: 1.5rem; padding-bottom: 0; }
+.breadcrumb-list {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.bc-link { font-size: 0.7rem; color: #6B6B68; transition: color 0.2s; }
+.bc-link:hover { color: #1C1C1A; }
+.bc-sep { font-size: 0.7rem; color: #D0CBC4; }
+.bc-current { font-size: 0.7rem; color: #1C1C1A; }
+
+/* 詳細レイアウト */
+.work-detail { padding: 3rem 0 5rem; }
+.work-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+}
+@media (min-width: 1024px) {
+  .work-detail-grid {
+    grid-template-columns: 1fr 420px;
+    gap: 4rem;
+  }
+  /* デスクトップ: コンテンツ左、メタ右 */
+  .work-content { order: 1; }
+  .work-meta    { order: 2; }
+}
+
+.work-main-title {
+  font-size: clamp(1.75rem, 3vw, 2.75rem);
+  font-weight: 300;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  margin-bottom: 0.4rem;
+}
+.work-title-en {
+  font-size: 0.8rem;
+  color: #6B6B68;
+  margin-bottom: 2rem;
+}
+
+/* メタ */
+.meta-list { border-top: 1px solid #E5E4E0; }
+.meta-row {
+  display: flex;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #E5E4E0;
+}
+.meta-label { min-width: 5.5rem; padding-top: 1px; flex-shrink: 0; }
+.meta-value { font-size: 0.875rem; }
+
+/* 製作者 + X リンク */
+.meta-creator {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.creator-x-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: #6B6B68;
+  border: 1px solid #E5E4E0;
+  padding: 0.2rem 0.55rem;
+  border-radius: 2px;
+  transition: color 0.2s, border-color 0.2s;
+}
+.creator-x-link:hover { color: #1C1C1A; border-color: #1C1C1A; }
+
+/* ギャラリー */
+.gallery { margin-top: 4rem; }
+.gallery-title { margin-bottom: 1.5rem; }
+.gallery-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+@media (min-width: 640px) {
+  .gallery-grid { grid-template-columns: 1fr 1fr; }
+}
+.gallery-item {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 前後ナビ */
+.work-nav { padding: 2.5rem 0 5rem; border-top: 1px solid #E5E4E0; }
+.work-nav-inner { display: flex; justify-content: space-between; gap: 1rem; }
+.prev-next-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-width: 16rem;
+}
+.prev-next-link.text-right { align-items: flex-end; text-align: right; }
+.nav-work-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1C1C1A;
+  transition: color 0.2s;
+}
+.prev-next-link:hover .nav-work-title { color: #C9A96E; }
+</style>

@@ -1,0 +1,22 @@
+User-agent: *
+Allow: /
+Sitemap: https://misosiru-city.com/sitemap-index.xml
+
+# AI crawlers (AIO support)
+User-agent: GPTBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
