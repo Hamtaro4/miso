@@ -129,6 +129,26 @@ const currentPath = Astro.url.pathname;
       if (!menuOpen) applyState();
     }, { passive: true, signal: sig });
 
+    // iOS 対応のスクロールロック
+    // overflow:hidden だけでは iOS Safari でページが背後でスクロールするため
+    // position:fixed + スクロール位置の保存・復元で対応する
+    let savedScrollY = 0;
+
+    function lockScroll() {
+      savedScrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top      = `-${savedScrollY}px`;
+      document.body.style.width    = '100%';
+      document.body.style.overflowY = 'scroll'; // スクロールバー幅の確保
+    }
+    function unlockScroll() {
+      document.body.style.position  = '';
+      document.body.style.top       = '';
+      document.body.style.width     = '';
+      document.body.style.overflowY = '';
+      window.scrollTo({ top: savedScrollY, behavior: 'instant' });
+    }
+
     // ハンバーガー開閉
     toggle.addEventListener('click', () => {
       menuOpen = !menuOpen;
@@ -136,7 +156,7 @@ const currentPath = Astro.url.pathname;
       toggle.dataset.open = String(menuOpen);
       menu.setAttribute('aria-hidden', String(!menuOpen));
       menu.dataset.open = String(menuOpen);
-      document.body.style.overflow = menuOpen ? 'hidden' : '';
+      menuOpen ? lockScroll() : unlockScroll();
       menu.querySelectorAll<HTMLElement>('[tabindex]').forEach(el => {
         el.setAttribute('tabindex', menuOpen ? '0' : '-1');
       });
@@ -151,7 +171,7 @@ const currentPath = Astro.url.pathname;
         toggle.dataset.open = 'false';
         menu.setAttribute('aria-hidden', 'true');
         menu.dataset.open = 'false';
-        document.body.style.overflow = '';
+        unlockScroll();
         menu.querySelectorAll<HTMLElement>('[tabindex]').forEach(el => el.setAttribute('tabindex', '-1'));
         applyState();
       }, { signal: sig });
@@ -167,7 +187,14 @@ const currentPath = Astro.url.pathname;
 
   // 初回実行 & View Transitions 後に毎回再初期化
   initHeader();
-  document.addEventListener('astro:page-load', initHeader);
+  document.addEventListener('astro:page-load', () => {
+    // ページ遷移時にスクロールロックが残っていたら必ず解除
+    document.body.style.position  = '';
+    document.body.style.top       = '';
+    document.body.style.width     = '';
+    document.body.style.overflowY = '';
+    initHeader();
+  });
 </script>
 
 <style>
@@ -310,8 +337,11 @@ const currentPath = Astro.url.pathname;
   background-color: #F8F7F4;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
+  /* 内側のコンテンツが多くてもスクロールできるように */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 6rem 2rem 5rem;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
@@ -326,6 +356,9 @@ const currentPath = Astro.url.pathname;
   flex-direction: column;
   align-items: center;
   gap: 2.5rem;
+  /* 上下中央に寄せつつ、コンテンツが少ない場合も見栄えを保つ */
+  margin: auto 0;
+  width: 100%;
 }
 .mobile-nav-item {
   display: flex;
