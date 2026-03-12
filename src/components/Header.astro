@@ -98,29 +98,38 @@ const currentPath = Astro.url.pathname;
 </div>
 
 <script>
-  (() => {
-    const header    = document.getElementById('site-header')!;
-    const toggle    = document.getElementById('menu-toggle')!;
-    const menu      = document.getElementById('mobile-menu')!;
-    const isHero    = header.classList.contains('hero-mode');
-    let menuOpen    = false;
-    let scrolled    = window.scrollY > 20;
+  // AbortController を使って、ページ遷移のたびに古いイベントリスナーを
+  // クリーンアップし、新しい DOM 要素に再アタッチする
+  let ctrl = new AbortController();
 
-    // --- ヘッダー状態の適用 ---
+  function initHeader() {
+    // 前回のリスナーをすべて解除
+    ctrl.abort();
+    ctrl = new AbortController();
+    const sig = ctrl.signal;
+
+    const header = document.getElementById('site-header');
+    const toggle = document.getElementById('menu-toggle');
+    const menu   = document.getElementById('mobile-menu');
+    if (!header || !toggle || !menu) return;
+
+    const isHero = header.classList.contains('hero-mode');
+    let menuOpen = false;
+    let scrolled = window.scrollY > 20;
+
     function applyState() {
       const needsBg = menuOpen || scrolled || !isHero;
-      header.dataset.solidBg = needsBg ? 'true' : 'false';
-      // ヒーロー透明時だけロゴ・ナビを白に
+      header.dataset.solidBg  = needsBg ? 'true' : 'false';
       header.dataset.lightText = (!needsBg).toString();
     }
 
-    // --- スクロール監視 ---
+    // スクロール監視
     window.addEventListener('scroll', () => {
       scrolled = window.scrollY > 20;
       if (!menuOpen) applyState();
-    }, { passive: true });
+    }, { passive: true, signal: sig });
 
-    // --- メニュー開閉 ---
+    // ハンバーガー開閉
     toggle.addEventListener('click', () => {
       menuOpen = !menuOpen;
       toggle.setAttribute('aria-expanded', String(menuOpen));
@@ -128,14 +137,11 @@ const currentPath = Astro.url.pathname;
       menu.setAttribute('aria-hidden', String(!menuOpen));
       menu.dataset.open = String(menuOpen);
       document.body.style.overflow = menuOpen ? 'hidden' : '';
-
-      // モバイルリンクのフォーカス制御
       menu.querySelectorAll<HTMLElement>('[tabindex]').forEach(el => {
         el.setAttribute('tabindex', menuOpen ? '0' : '-1');
       });
-
       applyState();
-    });
+    }, { signal: sig });
 
     // モバイルリンクでメニューを閉じる
     menu.querySelectorAll('.mobile-nav-item').forEach(link => {
@@ -148,29 +154,20 @@ const currentPath = Astro.url.pathname;
         document.body.style.overflow = '';
         menu.querySelectorAll<HTMLElement>('[tabindex]').forEach(el => el.setAttribute('tabindex', '-1'));
         applyState();
-      });
+      }, { signal: sig });
     });
 
     // Esc キー
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape' && menuOpen) toggle.click();
-    });
+    }, { signal: sig });
 
-    // 初期化
     applyState();
+  }
 
-    // View Transitions 後に再初期化
-    document.addEventListener('astro:page-load', () => {
-      menuOpen = false;
-      scrolled = window.scrollY > 20;
-      toggle.setAttribute('aria-expanded', 'false');
-      toggle.dataset.open = 'false';
-      menu.setAttribute('aria-hidden', 'true');
-      menu.dataset.open = 'false';
-      document.body.style.overflow = '';
-      applyState();
-    });
-  })();
+  // 初回実行 & View Transitions 後に毎回再初期化
+  initHeader();
+  document.addEventListener('astro:page-load', initHeader);
 </script>
 
 <style>
