@@ -8,7 +8,7 @@ import { NAV_LINKS, SNS_LINKS, SITE } from '@/config';
 
       <!-- ロゴ + キャッチコピー -->
       <div class="footer-brand">
-        <a href="/" class="footer-logo">
+        <a href={import.meta.env.BASE_URL} class="footer-logo">
           <span class="footer-logo-main">{SITE.name}</span>
           <span class="footer-logo-sub">{SITE.nameEn}</span>
         </a>
@@ -20,7 +20,7 @@ import { NAV_LINKS, SNS_LINKS, SITE } from '@/config';
         <nav aria-label="フッターナビゲーション" class="footer-nav">
           {NAV_LINKS.map((link) => (
             <a
-              href={link.href}
+              href={link.external ? link.href : `${import.meta.env.BASE_URL}${link.href.slice(1)}`}
               target={link.external ? '_blank' : undefined}
               rel={link.external ? 'noopener noreferrer' : undefined}
               class="footer-nav-item label"

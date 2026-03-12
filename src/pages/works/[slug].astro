@@ -72,9 +72,9 @@ const jsonLd = {
   <!-- パンくずリスト -->
   <nav class="breadcrumb site-container" aria-label="パンくずリスト">
     <ol class="breadcrumb-list">
-      <li><a href="/" class="bc-link">ホーム</a></li>
+      <li><a href={import.meta.env.BASE_URL} class="bc-link">ホーム</a></li>
       <li aria-hidden="true" class="bc-sep">›</li>
-      <li><a href="/works" class="bc-link">WORKS</a></li>
+      <li><a href={`${import.meta.env.BASE_URL}works`} class="bc-link">WORKS</a></li>
       <li aria-hidden="true" class="bc-sep">›</li>
       <li aria-current="page" class="bc-current">{data.title}</li>
     </ol>

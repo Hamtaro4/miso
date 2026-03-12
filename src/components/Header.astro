@@ -22,7 +22,7 @@ const currentPath = Astro.url.pathname;
   <div class="site-container header-inner">
 
     <!-- ロゴ -->
-    <a href="/" class="logo-link" aria-label={`${SITE.name} トップページへ`}>
+    <a href={import.meta.env.BASE_URL} class="logo-link" aria-label={`${SITE.name} トップページへ`}>
       <span class="logo-main">{SITE.name}</span>
       <span class="logo-sub">{SITE.nameEn}</span>
     </a>
@@ -30,10 +30,11 @@ const currentPath = Astro.url.pathname;
     <!-- デスクトップナビ -->
     <nav aria-label="メインナビゲーション" class="desktop-nav">
       {NAV_LINKS.map((link) => {
-        const isActive = !link.external && currentPath.startsWith(link.href);
+        const fullHref = link.external ? link.href : `${import.meta.env.BASE_URL}${link.href.slice(1)}`;
+        const isActive = !link.external && currentPath.startsWith(fullHref);
         return (
           <a
-            href={link.href}
+            href={fullHref}
             target={link.external ? '_blank' : undefined}
             rel={link.external ? 'noopener noreferrer' : undefined}
             aria-current={isActive ? 'page' : undefined}
@@ -73,7 +74,7 @@ const currentPath = Astro.url.pathname;
   <nav aria-label="モバイルナビゲーション" class="mobile-nav">
     {NAV_LINKS.map((link) => (
       <a
-        href={link.href}
+        href={link.external ? link.href : `${import.meta.env.BASE_URL}${link.href.slice(1)}`}
         target={link.external ? '_blank' : undefined}
         rel={link.external ? 'noopener noreferrer' : undefined}
         class="mobile-nav-item"

@@ -56,7 +56,7 @@ const jsonLd = {
           <p class="label section-label-top">Portfolio</p>
           <h2 id="works-heading" class="section-title">WORKS</h2>
         </div>
-        <a href="/works" class="section-more-link label" aria-label="すべての作品を見る">
+        <a href={`${import.meta.env.BASE_URL}works`} class="section-more-link label" aria-label="すべての作品を見る">
           すべての作品
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
             <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
@@ -78,7 +78,7 @@ const jsonLd = {
       </div>
 
       <div class="section-more-mobile">
-        <a href="/works" class="label footer-link" aria-label="すべての作品を見る">
+        <a href={`${import.meta.env.BASE_URL}works`} class="label footer-link" aria-label="すべての作品を見る">
           すべての作品を見る →
         </a>
       </div>
@@ -95,7 +95,7 @@ const jsonLd = {
           <p class="label section-label-top">Information</p>
           <h2 id="news-heading" class="section-title">NEWS</h2>
         </div>
-        <a href="/news" class="section-more-link label" aria-label="すべてのお知らせを見る">
+        <a href={`${import.meta.env.BASE_URL}news`} class="section-more-link label" aria-label="すべてのお知らせを見る">
           すべてのお知らせ
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
             <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
@@ -117,7 +117,7 @@ const jsonLd = {
       </div>
 
       <div class="section-more-mobile">
-        <a href="/news" class="label footer-link" aria-label="すべてのお知らせを見る">
+        <a href={`${import.meta.env.BASE_URL}news`} class="label footer-link" aria-label="すべてのお知らせを見る">
           すべてのお知らせを見る →
         </a>
       </div>
@@ -137,7 +137,7 @@ const jsonLd = {
         {pd.ctaBody ?? "味噌汁市は、建築・都市デザインを通じてまちの可能性を探るクリエイティブ集団です。多様なバックグラウンドを持つメンバーとともに活動しています。"}
       </p>
       <div class="cta-actions">
-        <a href="/recruit" class="btn-outline-light">
+        <a href={`${import.meta.env.BASE_URL}recruit`} class="btn-outline-light">
           制作員募集
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
             <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>

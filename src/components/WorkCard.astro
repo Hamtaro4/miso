@@ -11,7 +11,7 @@ const { slug, title, titleEn, category, mainImage, index = 0 } = Astro.props;
 ---
 
 <article class="wc-wrap" data-index={index}>
-  <a href={`/works/${slug}`} class="wc-link" aria-label={`${title} — 詳細を見る`}>
+  <a href={`${import.meta.env.BASE_URL}works/${slug}`} class="wc-link" aria-label={`${title} — 詳細を見る`}>
     <div class="wc-img img-placeholder">
       <img
         src={mainImage}

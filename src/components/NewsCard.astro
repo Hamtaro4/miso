@@ -13,7 +13,7 @@ const dateStr = new Intl.DateTimeFormat('ja-JP', { year:'numeric', month:'long',
 
 {variant === 'compact' ? (
   <article class="news-compact">
-    <a href={`/news/${slug}`} class="news-compact-link">
+    <a href={`${import.meta.env.BASE_URL}news/${slug}`} class="news-compact-link">
       <time datetime={pubDate.toISOString()} class="nc-date label">{dateStr}</time>
       <span class="nc-cat label">{category}</span>
       <h3 class="nc-title card-title">{title}</h3>
@@ -21,7 +21,7 @@ const dateStr = new Intl.DateTimeFormat('ja-JP', { year:'numeric', month:'long',
   </article>
 ) : (
   <article class="news-default">
-    <a href={`/news/${slug}`} class="news-link">
+    <a href={`${import.meta.env.BASE_URL}news/${slug}`} class="news-link">
       <div class="nd-meta">
         <time datetime={pubDate.toISOString()} class="label">{dateStr}</time>
         <span class="label">{category}</span>
