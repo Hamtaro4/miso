@@ -1,7 +1,8 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getEntry } from 'astro:content';
-import { CONTACT_FORM_URL, SITE } from '@/config';
+import { CONTACT_FORM_URL, SITE, SNS_LINKS } from '@/config';
+const discordUrl = SNS_LINKS.find(s => s.icon === 'discord')?.href;
 
 // RECRUITページのテキストを content/pages/recruit.md から読み込む
 const pageContent = await getEntry('pages', 'recruit');
@@ -71,17 +72,34 @@ const jsonLd = {
       <p class="cta-body">
         {pd.ctaBodyRecruit ?? "フォームからお名前・関わり方のご希望・簡単な自己紹介をお送りください。一緒に活動の形を考えます。"}
       </p>
-      <a
-        href={CONTACT_FORM_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        class="btn-outline-light"
-      >
-        応募・問い合わせる
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-          <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </a>
+      <div class="cta-actions">
+        <!-- Discordボタン（config.tsのDiscord URLが変更されると自動で反映） -->
+        {discordUrl && (
+          <a
+            href={discordUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn-discord"
+            aria-label="Discordサーバーに参加する"
+          >
+            <svg width="18" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M20.317 4.492c-1.53-.69-3.17-1.2-4.885-1.49a.075.075 0 00-.079.036c-.21.369-.444.85-.608 1.23a18.566 18.566 0 00-5.487 0 12.36 12.36 0 00-.617-1.23A.077.077 0 008.562 3c-1.714.29-3.354.8-4.885 1.491a.07.07 0 00-.032.027C.533 9.093-.32 13.555.099 17.961a.08.08 0 00.031.055 20.03 20.03 0 005.993 2.98.078.078 0 00.084-.026c.462-.62.874-1.275 1.226-1.963.021-.04.001-.088-.041-.104a13.201 13.201 0 01-1.872-.878.075.075 0 01-.008-.125c.126-.093.252-.19.372-.287a.075.075 0 01.078-.01c3.927 1.764 8.18 1.764 12.061 0a.075.075 0 01.079.009c.12.098.245.195.372.288a.075.075 0 01-.006.125c-.598.344-1.22.635-1.873.877a.075.075 0 00-.041.105c.36.687.772 1.341 1.225 1.962a.077.077 0 00.084.028 19.963 19.963 0 006.002-2.981.076.076 0 00.032-.054c.5-5.094-.838-9.52-3.549-13.442a.06.06 0 00-.031-.028z"/>
+            </svg>
+            Discord で話しかける
+          </a>
+        )}
+        <a
+          href={CONTACT_FORM_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn-outline-light"
+        >
+          応募・問い合わせる
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
     </div>
   </section>
 </BaseLayout>
@@ -151,5 +169,33 @@ const jsonLd = {
   line-height: 1.9;
   max-width: 30rem;
   margin: 0 auto 2.5rem;
+}
+.cta-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+@media (min-width: 480px) {
+  .cta-actions { flex-direction: row; justify-content: center; }
+}
+
+/* Discordボタン */
+.btn-discord {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1.75rem;
+  background-color: #5865F2;
+  color: #fff;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  border-radius: 2px;
+  transition: background-color 0.2s, transform 0.15s;
+  font-weight: 500;
+}
+.btn-discord:hover {
+  background-color: #4752c4;
+  transform: translateY(-1px);
 }
 </style>

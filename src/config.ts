@@ -20,6 +20,44 @@ export const NAV_LINKS = [
   { href: CONTACT_FORM_URL, label: 'CONTACT', labelJa: 'お問い合わせ', external: true  },
 ] as const;
 
+// ================================================================
+// YouTube動画リスト
+// ================================================================
+// ▼ 動画を追加・削除する方法
+//   1. YouTubeで動画を開く
+//   2. URLの ?v= のあとの文字列をコピー（例: https://youtu.be/XXXXXXXXXXX → XXXXXXXXXXX）
+//   3. 下の { id: '...', title: '...' } をコピーして追記する
+//
+// ▼ 注目動画（大きく表示）の変更方法
+//   featured: true にした動画が1つだけ大きく表示されます
+//   ※ featured: true は必ず1つだけにしてください
+// ================================================================
+export const YOUTUBE_VIDEOS = [
+  {
+    // 【必須】YouTubeのビデオID（URLの ?v= 以降 or youtu.be/ 以降の文字列）
+    id: 'PLACEHOLDER_1',
+    // 【必須】動画タイトル（サイト上に表示されます）
+    title: '【味噌汁市】紹介動画 vol.1',
+    // 【必須】true にするとトップに大きく表示。1つだけ true にしてください
+    featured: true,
+  },
+  {
+    id: 'PLACEHOLDER_2',
+    title: '住宅街エリア 建設タイムラプス',
+    featured: false,
+  },
+  {
+    id: 'PLACEHOLDER_3',
+    title: '北口駅前商店街 完成ツアー',
+    featured: false,
+  },
+  {
+    id: 'PLACEHOLDER_4',
+    title: '味噌汁台駅 制作メイキング',
+    featured: false,
+  },
+] as const;
+
 /** SNS / 外部リンク — hrefを実際のURLに差し替えてください */
 export const SNS_LINKS = [
   {

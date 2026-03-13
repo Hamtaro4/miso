@@ -4,7 +4,9 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import HeroSection from '@/components/HeroSection.astro';
 import WorkCard from '@/components/WorkCard.astro';
 import NewsCard from '@/components/NewsCard.astro';
-import { SITE, CONTACT_FORM_URL } from '@/config';
+import { SITE, CONTACT_FORM_URL, YOUTUBE_VIDEOS } from '@/config';
+const featuredVideo = YOUTUBE_VIDEOS.find(v => v.featured);
+const subVideos     = YOUTUBE_VIDEOS.filter(v => !v.featured);
 
 // トップページのテキストを content/pages/index.md から読み込む
 const pageContent = await getEntry('pages', 'index');
@@ -124,6 +126,100 @@ const jsonLd = {
     </div>
   </section>
 
+  <div class="site-container"><hr class="divider" /></div>
+
+  <!-- YouTube -->
+  <section class="yt-section" aria-labelledby="yt-heading">
+    <div class="site-container">
+      <div class="section-header">
+        <div>
+          <p class="label section-label-top">Video</p>
+          <h2 id="yt-heading" class="section-title">YOUTUBE</h2>
+        </div>
+        <a
+          href="https://www.youtube.com/@MisosiruCity"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="section-more-link label"
+          aria-label="YouTubeチャンネルを見る"
+        >
+          チャンネルを見る
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+
+      <!-- 注目動画（大きく表示） -->
+      {featuredVideo && (
+        <a
+          href={`https://www.youtube.com/watch?v=${featuredVideo.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="yt-featured"
+          aria-label={`${featuredVideo.title} — YouTubeで見る`}
+        >
+          <div class="yt-featured-thumb">
+            <img
+              src={`https://i.ytimg.com/vi/${featuredVideo.id}/maxresdefault.jpg`}
+              alt={featuredVideo.title}
+              width="1280"
+              height="720"
+              loading="lazy"
+              decoding="async"
+            />
+            <div class="yt-play-overlay" aria-hidden="true">
+              <div class="yt-play-btn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M8 5v14l11-7z"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <p class="yt-featured-title">{featuredVideo.title}</p>
+        </a>
+      )}
+
+      <!-- サブ動画グリッド -->
+      {subVideos.length > 0 && (
+        <div class="yt-grid">
+          {subVideos.map(v => (
+            <a
+              href={`https://www.youtube.com/watch?v=${v.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="yt-card"
+              aria-label={`${v.title} — YouTubeで見る`}
+            >
+              <div class="yt-card-thumb">
+                <img
+                  src={`https://i.ytimg.com/vi/${v.id}/mqdefault.jpg`}
+                  alt={v.title}
+                  width="320"
+                  height="180"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <div class="yt-card-play" aria-hidden="true">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                </div>
+              </div>
+              <p class="yt-card-title">{v.title}</p>
+            </a>
+          ))}
+        </div>
+      )}
+
+      <div class="section-more-mobile">
+        <a href="https://www.youtube.com/@MisosiruCity" target="_blank" rel="noopener noreferrer" class="label footer-link">
+          YouTubeチャンネルを見る →
+        </a>
+      </div>
+    </div>
+  </section>
+
   <!-- About CTA -->
   <section class="cta-section" aria-labelledby="cta-heading">
     <div class="site-container cta-inner">
@@ -201,6 +297,119 @@ const jsonLd = {
 
 .news-list { max-width: 48rem; }
 .divider { border: none; border-top: 1px solid #E5E4E0; }
+
+/* YouTube section */
+.yt-section { padding: 5rem 0 6rem; }
+
+/* 注目動画 */
+.yt-featured {
+  display: block;
+  margin-bottom: 2rem;
+}
+.yt-featured-thumb {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #1C1C1A;
+  border-radius: 2px;
+}
+.yt-featured-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s ease, filter 0.4s ease;
+}
+.yt-featured:hover .yt-featured-thumb img {
+  transform: scale(1.03);
+  filter: brightness(0.75);
+}
+.yt-play-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.yt-play-btn {
+  width: 5rem;
+  height: 5rem;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.6);
+  border: 2px solid rgba(255,255,255,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  transition: background 0.25s, transform 0.25s;
+}
+.yt-featured:hover .yt-play-btn {
+  background: #FF0000;
+  border-color: #FF0000;
+  transform: scale(1.1);
+}
+.yt-featured-title {
+  margin-top: 0.9rem;
+  font-size: 1rem;
+  font-weight: 400;
+  color: #1C1C1A;
+  line-height: 1.5;
+  transition: color 0.2s;
+}
+.yt-featured:hover .yt-featured-title { color: #C9A96E; }
+
+/* サブ動画グリッド */
+.yt-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+@media (min-width: 768px) {
+  .yt-grid { grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+}
+.yt-card { display: block; }
+.yt-card-thumb {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #1C1C1A;
+  border-radius: 2px;
+  margin-bottom: 0.6rem;
+}
+.yt-card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease, filter 0.3s ease;
+}
+.yt-card:hover .yt-card-thumb img {
+  transform: scale(1.04);
+  filter: brightness(0.7);
+}
+.yt-card-play {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.yt-card:hover .yt-card-play { opacity: 1; }
+.yt-card-title {
+  font-size: 0.8rem;
+  color: #3A3A38;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: color 0.2s;
+}
+.yt-card:hover .yt-card-title { color: #C9A96E; }
 
 /* CTA section */
 .cta-section {
