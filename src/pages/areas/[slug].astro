@@ -1,0 +1,433 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import WorkCard from '@/components/WorkCard.astro';
+import { SITE } from '@/config';
+
+const BASE = import.meta.env.BASE_URL;
+
+export async function getStaticPaths() {
+  const regions = await getCollection('regions');
+  return regions.map((r) => ({
+    params: { slug: r.slug },
+    props: { region: r },
+  }));
+}
+
+const { region } = Astro.props;
+const { Content } = await region.render();
+
+// このエリアに属する作品を取得
+const allWorks = await getCollection('works', (w) => !w.data.draft && w.data.region === region.slug);
+const works = allWorks.sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+
+// すべてのエリアを取得（前後ナビ用）
+const allRegions = (await getCollection('regions')).sort((a, b) => a.data.order - b.data.order);
+const currentIdx = allRegions.findIndex((r) => r.slug === region.slug);
+const prevRegion = currentIdx > 0 ? allRegions[currentIdx - 1] : null;
+const nextRegion = currentIdx < allRegions.length - 1 ? allRegions[currentIdx + 1] : null;
+---
+
+<BaseLayout
+  title={region.data.title}
+  description={region.data.description}
+>
+  <!-- ヘッダー -->
+  <div class="area-header">
+    {region.data.areaImage && (
+      <div class="area-hero-img">
+        <img
+          src={`${BASE}${region.data.areaImage}`}
+          alt={region.data.title}
+          width="1280"
+          height="720"
+          loading="eager"
+          decoding="async"
+        />
+        <div class="area-hero-overlay" />
+        <div class="area-hero-text site-container">
+          {region.data.titleEn && <p class="area-hero-en">{region.data.titleEn}</p>}
+          <h1 class="area-hero-title">{region.data.title}</h1>
+        </div>
+      </div>
+    )}
+    {!region.data.areaImage && (
+      <div class="area-header-plain site-container">
+        {region.data.titleEn && <p class="area-plain-en">{region.data.titleEn}</p>}
+        <h1 class="area-plain-title">{region.data.title}</h1>
+      </div>
+    )}
+  </div>
+
+  <div class="area-body site-container">
+
+    <div class="area-body-inner">
+
+      <!-- 説明 + 本文 -->
+      <div class="area-main">
+        <div class="area-lead-row">
+          <p class="area-lead">{region.data.description}</p>
+        </div>
+        <div class="prose area-prose">
+          <Content />
+        </div>
+      </div>
+
+      <!-- 情報パネル（人口・町名・駅・座標など） -->
+      {(region.data.population || region.data.towns.length > 0 || region.data.stations.length > 0 || region.data.officeCoords || region.data.status) && (
+        <aside class="area-infobox" aria-label="エリア基本情報">
+          <h2 class="infobox-heading">基本情報</h2>
+          <dl class="infobox-list">
+
+            {region.data.status && (
+              <>
+                <dt>制作状況</dt>
+                <dd><span class="status-badge">{region.data.status}</span></dd>
+              </>
+            )}
+
+            {region.data.population && (
+              <>
+                <dt>人口</dt>
+                <dd>
+                  {region.data.population}
+                  {region.data.populationDate && (
+                    <span class="infobox-note">{region.data.populationDate}時点</span>
+                  )}
+                </dd>
+              </>
+            )}
+
+            {region.data.towns.length > 0 && (
+              <>
+                <dt>町名</dt>
+                <dd>
+                  <ul class="infobox-tags">
+                    {region.data.towns.map(t => <li>{t}</li>)}
+                  </ul>
+                </dd>
+              </>
+            )}
+
+            {region.data.stations.length > 0 && (
+              <>
+                <dt>駅</dt>
+                <dd>
+                  <ul class="infobox-station-list">
+                    {region.data.stations.map(s => (
+                      <li>
+                        {s.name}
+                        {s.model && <span class="infobox-note">元ネタ：{s.model}</span>}
+                      </li>
+                    ))}
+                  </ul>
+                </dd>
+              </>
+            )}
+
+            {region.data.officeCoords && (
+              <>
+                <dt>区役所座標</dt>
+                <dd><code class="infobox-coords">{region.data.officeCoords}</code></dd>
+              </>
+            )}
+
+          </dl>
+        </aside>
+      )}
+
+    </div>
+
+  </div>
+
+  <!-- 建物一覧 -->
+  <section class="works-section" aria-labelledby="works-heading">
+    <div class="works-header site-container">
+      <h2 id="works-heading" class="works-heading">このエリアの建物</h2>
+      <span class="works-count">{works.length} 件</span>
+    </div>
+
+    {works.length === 0 ? (
+      <p class="empty-msg site-container">このエリアの作品はまだありません。</p>
+    ) : (
+      <div class="works-grid">
+        {works.map((w, i) => (
+          <WorkCard
+            slug={w.slug}
+            title={w.data.title}
+            titleEn={w.data.titleEn}
+            category={w.data.category}
+            mainImage={w.data.mainImage}
+            index={i}
+          />
+        ))}
+      </div>
+    )}
+  </section>
+
+  <!-- 前後ナビ -->
+  {(prevRegion || nextRegion) && (
+    <nav class="area-nav site-container" aria-label="エリアナビゲーション">
+      {prevRegion ? (
+        <a href={`${BASE}/areas/${prevRegion.slug}`} class="area-nav-link area-nav-prev">
+          <span class="area-nav-dir">← 前のエリア</span>
+          <span class="area-nav-name">{prevRegion.data.title}</span>
+        </a>
+      ) : <span />}
+      {nextRegion ? (
+        <a href={`${BASE}/areas/${nextRegion.slug}`} class="area-nav-link area-nav-next">
+          <span class="area-nav-dir">次のエリア →</span>
+          <span class="area-nav-name">{nextRegion.data.title}</span>
+        </a>
+      ) : <span />}
+    </nav>
+  )}
+
+  <!-- 一覧へ戻るリンク -->
+  <div class="back-link-wrap site-container">
+    <a href={`${BASE}/areas`} class="back-link">← エリア一覧に戻る</a>
+  </div>
+
+</BaseLayout>
+
+<style>
+/* ===== ヒーロー画像あり ===== */
+.area-hero-img {
+  position: relative;
+  aspect-ratio: 21 / 9;
+  overflow: hidden;
+  background: #1C1C1A;
+}
+@media (max-width: 640px) {
+  .area-hero-img { aspect-ratio: 4 / 3; }
+}
+.area-hero-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.75;
+}
+.area-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(28,28,26,0.7) 0%, transparent 60%);
+}
+.area-hero-text {
+  position: absolute;
+  bottom: 2.5rem;
+  left: 0;
+  right: 0;
+  color: #fff;
+}
+.area-hero-en {
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 0.4rem;
+}
+.area-hero-title {
+  font-size: clamp(1.75rem, 4vw, 3rem);
+  font-weight: 300;
+  letter-spacing: -0.01em;
+}
+
+/* ===== 画像なし ===== */
+.area-header-plain {
+  padding-top: 10rem;
+  padding-bottom: 3rem;
+}
+.area-plain-en {
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #9D9C99;
+  margin-bottom: 0.4rem;
+}
+.area-plain-title {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+}
+
+/* ===== 本文エリア ===== */
+.area-body {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+.area-body-inner {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3rem;
+  align-items: start;
+}
+@media (min-width: 900px) {
+  .area-body-inner {
+    grid-template-columns: 1fr 18rem;
+    gap: 4rem;
+  }
+}
+.area-main { min-width: 0; }
+.area-lead-row { margin-bottom: 2.5rem; }
+.area-lead {
+  font-size: 0.95rem;
+  color: #6B6B68;
+  line-height: 1.85;
+  border-left: 2px solid #E5E4E0;
+  padding-left: 1.25rem;
+}
+
+/* ===== 情報パネル ===== */
+.area-infobox {
+  background: #F8F7F4;
+  border: 1px solid #E5E4E0;
+  padding: 1.5rem;
+}
+.infobox-heading {
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #9D9C99;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #E5E4E0;
+}
+.infobox-list {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.75rem 1rem;
+  align-items: baseline;
+}
+.infobox-list dt {
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: #9D9C99;
+  white-space: nowrap;
+}
+.infobox-list dd {
+  font-size: 0.8rem;
+  color: #1C1C1A;
+  line-height: 1.6;
+}
+.infobox-note {
+  display: block;
+  font-size: 0.65rem;
+  color: #9D9C99;
+  margin-top: 0.1rem;
+}
+.status-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  background: #EEEDEA;
+  color: #6B6B68;
+  padding: 0.15rem 0.5rem;
+  border-radius: 2px;
+}
+.infobox-tags {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.infobox-tags li {
+  font-size: 0.7rem;
+  background: #EEEDEA;
+  padding: 0.1rem 0.5rem;
+  border-radius: 2px;
+  color: #6B6B68;
+}
+.infobox-station-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.infobox-coords {
+  font-family: monospace;
+  font-size: 0.75rem;
+  background: #EEEDEA;
+  padding: 0.15rem 0.4rem;
+  border-radius: 2px;
+  color: #6B6B68;
+  letter-spacing: 0.05em;
+}
+
+/* ===== 建物一覧 ===== */
+.works-section { padding-bottom: 6rem; }
+.works-header {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  border-top: 1px solid #E5E4E0;
+}
+.works-heading {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #1C1C1A;
+}
+.works-count {
+  font-size: 0.65rem;
+  color: #9D9C99;
+  letter-spacing: 0.1em;
+}
+.works-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5px;
+}
+@media (min-width: 640px) {
+  .works-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (min-width: 1200px) {
+  .works-grid { grid-template-columns: 1fr 1fr 1fr; }
+}
+.empty-msg { color: #9D9C99; font-size: 0.875rem; padding: 4rem 0; }
+
+/* ===== 前後ナビ ===== */
+.area-nav {
+  display: flex;
+  justify-content: space-between;
+  padding: 2.5rem 0;
+  border-top: 1px solid #E5E4E0;
+}
+.area-nav-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  color: inherit;
+  max-width: 45%;
+}
+.area-nav-next { align-items: flex-end; text-align: right; }
+.area-nav-dir {
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  color: #9D9C99;
+}
+.area-nav-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1C1C1A;
+  transition: color 0.2s;
+}
+.area-nav-link:hover .area-nav-name { color: #6B6B68; }
+
+/* ===== 戻るリンク ===== */
+.back-link-wrap { padding-bottom: 6rem; }
+.back-link {
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  color: #6B6B68;
+  transition: color 0.2s;
+}
+.back-link:hover { color: #1C1C1A; }
+</style>

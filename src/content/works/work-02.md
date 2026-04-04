@@ -38,6 +38,9 @@ creator: "しまむらさん・かわかみさん"
 # 【任意】製作者のXアカウント（@から始めてください）
 creatorX: "@misosiru_sample2"
 
+# 【任意】この作品が属するエリアのスラッグ（src/content/regions/ のファイル名と合わせてください）
+region: "kitaguchi"
+
 # 【必須】投稿日（YYYY-MM-DD）
 pubDate: 2024-06-01
 

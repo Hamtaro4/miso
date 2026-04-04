@@ -14,6 +14,7 @@ export const CONTACT_FORM_URL = 'https://forms.gle/XXXXXXXXXXXXXXXXX';
 
 export const NAV_LINKS = [
   { href: '/works',         label: 'WORKS',   labelJa: '作品',       external: false },
+  { href: '/areas',         label: 'AREAS',   labelJa: '地域',       external: false },
   { href: '/about',         label: 'ABOUT',   labelJa: '私たちについて', external: false },
   { href: '/news',          label: 'NEWS',    labelJa: 'お知らせ',    external: false },
   { href: '/recruit',       label: 'RECRUIT', labelJa: '採用',        external: false },

@@ -38,6 +38,9 @@ creator: "たなかさん"
 # 【任意】製作者のXアカウント
 creatorX: "@misosiru_sample3"
 
+# 【任意】この作品が属するエリアのスラッグ（src/content/regions/ のファイル名と合わせてください）
+region: "misosiru-dai"
+
 # 【必須】投稿日（YYYY-MM-DD）
 pubDate: 2023-12-10
 
