@@ -54,6 +54,10 @@ const worksCollection = defineCollection({
     // 【必須】投稿日（形式: YYYY-MM-DD）一覧の並び順に影響します
     pubDate: z.coerce.date(),
 
+    // 【任意】この作品が属するエリアのスラッグ（例: misosiru-dai, kitaguchi）
+    //         src/content/regions/ のファイル名（拡張子なし）と合わせてください
+    region: z.string().optional(),
+
     // 【任意】true にするとサイトに表示されなくなります（下書き）
     draft: z.boolean().default(false),
 
@@ -138,4 +142,51 @@ const pagesCollection = defineCollection({
   }),
 });
 
-export const collections = { works: worksCollection, news: newsCollection, pages: pagesCollection };
+// ------------------------------------------------------------
+// 地域（AREAS）の定義
+// ------------------------------------------------------------
+// src/content/regions/*.md で使えるフィールドのルール一覧
+const regionsCollection = defineCollection({
+  type: 'content',
+  schema: z.object({
+
+    // 【必須】地域名（日本語）
+    title: z.string(),
+
+    // 【任意】地域名（英語）
+    titleEn: z.string().optional(),
+
+    // 【必須】地域の説明文（100〜200文字程度）
+    description: z.string(),
+
+    // 【任意】エリア全体のメイン画像パス
+    areaImage: z.string().optional(),
+
+    // 【必須】一覧での表示順（数字が小さいほど上に表示）
+    order: z.number().default(99),
+
+    // 【任意】人口（例: "約13,625人"）
+    population: z.string().optional(),
+
+    // 【任意】人口の調査日（例: "2026.3.29"）
+    populationDate: z.string().optional(),
+
+    // 【任意】構成する町名（配列で複数入力可）
+    towns: z.array(z.string()).default([]),
+
+    // 【任意】駅一覧（name: 駅名、model: 元ネタの実在駅名）
+    stations: z.array(z.object({
+      name:  z.string(),
+      model: z.string().optional(),
+    })).default([]),
+
+    // 【任意】区役所・主要施設のMinecraft座標（例: "940 17 -730"）
+    officeCoords: z.string().optional(),
+
+    // 【任意】制作状況（例: "制作中"、"完成"）
+    status: z.string().optional(),
+
+  }),
+});
+
+export const collections = { works: worksCollection, news: newsCollection, pages: pagesCollection, regions: regionsCollection };

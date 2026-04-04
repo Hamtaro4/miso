@@ -54,13 +54,10 @@ const jsonLd = {
   <section class="works-section" aria-labelledby="works-heading">
     <div class="site-container">
       <div class="section-header">
-        <div>
-          <p class="label section-label-top">Portfolio</p>
-          <h2 id="works-heading" class="section-title">WORKS</h2>
-        </div>
-        <a href={`${import.meta.env.BASE_URL}/works`} class="section-more-link label" aria-label="すべての作品を見る">
+        <h2 id="works-heading" class="section-title">WORKS</h2>
+        <a href={`${import.meta.env.BASE_URL}/works`} class="section-more-link" aria-label="すべての作品を見る">
           すべての作品
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
             <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </a>
@@ -93,13 +90,10 @@ const jsonLd = {
   <section class="news-section" aria-labelledby="news-heading">
     <div class="site-container">
       <div class="section-header">
-        <div>
-          <p class="label section-label-top">Information</p>
-          <h2 id="news-heading" class="section-title">NEWS</h2>
-        </div>
-        <a href={`${import.meta.env.BASE_URL}/news`} class="section-more-link label" aria-label="すべてのお知らせを見る">
+        <h2 id="news-heading" class="section-title">NEWS</h2>
+        <a href={`${import.meta.env.BASE_URL}/news`} class="section-more-link" aria-label="すべてのお知らせを見る">
           すべてのお知らせ
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
             <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </a>
@@ -132,10 +126,7 @@ const jsonLd = {
   <section class="yt-section" aria-labelledby="yt-heading">
     <div class="site-container">
       <div class="section-header">
-        <div>
-          <p class="label section-label-top">Video</p>
-          <h2 id="yt-heading" class="section-title">YOUTUBE</h2>
-        </div>
+        <h2 id="yt-heading" class="section-title">YOUTUBE</h2>
         <a
           href="https://www.youtube.com/@MisosiruCity"
           target="_blank"
@@ -233,7 +224,7 @@ const jsonLd = {
         {pd.ctaBody ?? "味噌汁市は、建築・都市デザインを通じてまちの可能性を探るクリエイティブ集団です。多様なバックグラウンドを持つメンバーとともに活動しています。"}
       </p>
       <div class="cta-actions">
-        <a href={`${import.meta.env.BASE_URL}/recruit`} class="btn-outline-light">
+        <a href={`${import.meta.env.BASE_URL}/recruit`} class="btn-primary">
           制作員募集
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
             <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
@@ -261,7 +252,6 @@ const jsonLd = {
   justify-content: space-between;
   margin-bottom: 2.5rem;
 }
-.section-label-top { margin-bottom: 0.5rem; }
 .section-title {
   font-size: clamp(1.75rem, 3vw, 2.5rem);
   font-weight: 300;
@@ -271,6 +261,10 @@ const jsonLd = {
   display: none;
   align-items: center;
   gap: 0.4rem;
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
   color: #6B6B68;
   transition: color 0.2s;
 }
@@ -357,7 +351,7 @@ const jsonLd = {
   line-height: 1.5;
   transition: color 0.2s;
 }
-.yt-featured:hover .yt-featured-title { color: #C9A96E; }
+.yt-featured:hover .yt-featured-title { color: #6B6B68; }
 
 /* サブ動画グリッド */
 .yt-grid {
@@ -409,7 +403,7 @@ const jsonLd = {
   overflow: hidden;
   transition: color 0.2s;
 }
-.yt-card:hover .yt-card-title { color: #C9A96E; }
+.yt-card:hover .yt-card-title { color: #6B6B68; }
 
 /* CTA section */
 .cta-section {

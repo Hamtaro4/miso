@@ -50,6 +50,9 @@ creator: "あおやまさん"
 # 　入力するとXへのリンクが表示されます。不要なら削除してOK
 creatorX: "@misosiru_sample"
 
+# 【任意】この作品が属するエリアのスラッグ（src/content/regions/ のファイル名と合わせてください）
+region: "misosiru-dai"
+
 # 【必須】投稿日（YYYY-MM-DD 形式）一覧の並び順に影響します
 pubDate: 2024-03-15
 

@@ -252,7 +252,7 @@ const currentPath = Astro.url.pathname;
   color: #6B6B68;
   transition: color 0.2s;
 }
-.logo-link:hover .logo-main { color: #C9A96E; }
+.logo-link:hover .logo-main { color: #6B6B68; }
 
 /* ヒーロー透明時: 白テキスト */
 .site-header[data-light-text="true"] .logo-main { color: #ffffff; }
@@ -283,7 +283,7 @@ const currentPath = Astro.url.pathname;
   bottom: -3px;
   left: 0;
   height: 1px;
-  background-color: #C9A96E;
+  background-color: #1C1C1A;
   width: 0;
   transition: width 0.3s ease;
 }
@@ -294,6 +294,7 @@ const currentPath = Astro.url.pathname;
 .site-header[data-light-text="true"] .nav-item { color: rgba(255,255,255,0.6); }
 .site-header[data-light-text="true"] .nav-item:hover,
 .site-header[data-light-text="true"] .nav-item.is-active { color: #fff; }
+.site-header[data-light-text="true"] .nav-item .nav-underline { background-color: rgba(255,255,255,0.7); }
 
 /* ===== ハンバーガー ===== */
 .hamburger {
@@ -379,7 +380,7 @@ const currentPath = Astro.url.pathname;
   letter-spacing: 0.15em;
   color: #6B6B68;
 }
-.mobile-nav-item:hover .mobile-label { color: #C9A96E; }
+.mobile-nav-item:hover .mobile-label { color: #6B6B68; }
 
 .mobile-twitter {
   position: absolute;

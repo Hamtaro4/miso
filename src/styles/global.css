@@ -2,12 +2,24 @@
 @plugin "@tailwindcss/typography";
 
 /* ===== デザイントークン ===== */
+/*
+  色の役割定義：
+  --color-primary  : 本文テキスト・強いUI要素
+  --color-surface  : 背景・サーフェス
+  --color-action   : アクション色（CTAボタン専用。ホバーや装飾には使わない）
+  --color-muted    : 補足テキスト・メタ情報
+  --color-subtle   : メタテキスト・タイムスタンプ
+  --color-border   : 区切り線・ボーダー
+  --color-surface2 : カードバッジ・サブ背景
+*/
 @theme {
   --color-primary:  #1C1C1A;
   --color-surface:  #F8F7F4;
-  --color-accent:   #C9A96E;
-  --color-muted:    #6B6B68;
+  --color-action:   #C9A96E;   /* アクションボタン専用 */
+  --color-muted:    #6B6B68;   /* 補足テキスト */
+  --color-subtle:   #9D9C99;   /* タイムスタンプ・カテゴリ */
   --color-border:   #E5E4E0;
+  --color-surface2: #EEEDEA;   /* バッジ・サブ背景 */
   --font-sans: "Noto Sans JP", "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
 }
 
@@ -48,6 +60,7 @@ a    { color: inherit; text-decoration: none; }
 }
 
 /* ===== タイポグラフィ ===== */
+/* 用途: ナビゲーション・セクション英字ラベルなど限定的に使う */
 .label {
   font-size: 0.65rem;
   font-weight: 500;
@@ -70,68 +83,89 @@ a    { color: inherit; text-decoration: none; }
   position: relative;
 }
 
-/* 画像エラー時: Astro script が img に .img-error クラスを付与 */
+/* 画像エラー時 */
 .img-error { display: none !important; }
 
-/* ===== インタラクション (V3: CSS onlyに移行) ===== */
-/* ナビゲーションリンク */
+/* ===== インタラクション ===== */
+/* ナビゲーション: active状態のみ primary。ホバーは muted→primary の遷移 */
 .nav-link { color: #6B6B68; transition: color 0.2s; }
 .nav-link:hover, .nav-link[aria-current="page"] { color: #1C1C1A; }
 
-/* カードホバー */
-.card-link:hover .card-title { color: #C9A96E; }
+/* カードホバー: muted に落とす（gold は使わない） */
+.card-link:hover .card-title { color: #6B6B68; }
 
 /* フッターリンク */
 .footer-link { color: #6B6B68; transition: color 0.2s; }
 .footer-link:hover { color: #1C1C1A; }
 
-/* ボタン */
+/* ===== ボタン ===== */
+/*
+  btn-primary : 最重要アクション（参加・応募）→ アクション色
+  btn-outline-dark : ライト背景上の標準ボタン
+  btn-outline-light: ダーク背景上のボタン
+  btn-ghost-light  : ダーク背景上の控えめボタン
+*/
+
+/* 最重要アクション: アクション色ベース */
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  font-size: 0.75rem; font-weight: 500; letter-spacing: 0.08em;
+  background-color: #C9A96E; color: #1C1C1A;
+  padding: 0.875rem 2rem; border-radius: 2px;
+  transition: background-color 0.2s, transform 0.15s;
+}
+.btn-primary:hover { background-color: #b8954f; transform: translateY(-1px); }
+
+/* 標準ボタン（ライト背景） */
 .btn-outline-dark {
   display: inline-flex; align-items: center; gap: 0.75rem;
-  font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+  font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase;
   border: 1px solid #1C1C1A; padding: 0.875rem 1.75rem;
-  transition: background-color 0.3s, color 0.3s;
+  transition: background-color 0.25s, color 0.25s;
 }
 .btn-outline-dark:hover { background-color: #1C1C1A; color: #F8F7F4; }
 
+/* ダーク背景上のボタン */
 .btn-outline-light {
   display: inline-flex; align-items: center; gap: 0.75rem;
-  font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
-  border: 1px solid rgba(248,247,244,0.4); padding: 1rem 2rem; color: #F8F7F4;
-  transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+  font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase;
+  border: 1px solid rgba(248,247,244,0.35); padding: 0.875rem 1.75rem; color: #F8F7F4;
+  transition: background-color 0.25s, border-color 0.25s, color 0.25s;
 }
 .btn-outline-light:hover { background-color: #F8F7F4; border-color: #F8F7F4; color: #1C1C1A; }
 
+/* ダーク背景上の控えめボタン */
 .btn-ghost-light {
   display: inline-flex; align-items: center; gap: 0.75rem;
-  font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
-  padding: 1rem 2rem; color: rgba(248,247,244,0.5);
+  font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase;
+  padding: 0.875rem 1.75rem; color: rgba(248,247,244,0.45);
   transition: color 0.2s;
 }
-.btn-ghost-light:hover { color: rgba(248,247,244,0.9); }
+.btn-ghost-light:hover { color: rgba(248,247,244,0.85); }
 
 /* ヒーロー CTA */
 .hero-cta {
   display: inline-flex; align-items: center; gap: 0.75rem;
-  font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase;
-  color: #fff; border: 1px solid rgba(255,255,255,0.45);
+  font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase;
+  color: #fff; border: 1px solid rgba(255,255,255,0.4);
   padding: 0.875rem 1.75rem;
-  transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+  transition: background-color 0.25s, border-color 0.25s, color 0.25s;
 }
 .hero-cta:hover { background-color: #fff; border-color: #fff; color: #1C1C1A; }
 
 /* 前後ナビ */
-.prev-next-link:hover .nav-work-title { color: #C9A96E; }
+.prev-next-link:hover .nav-work-title { color: #6B6B68; }
 
 /* ===== View Transitions ===== */
 @view-transition { navigation: auto; }
 
-/* ===== Prose ===== */
+/* ===== Prose (記事本文) ===== */
 .prose { font-size: 0.9375rem; line-height: 2; color: #1C1C1A; }
 .prose h2 { font-size: 1.1rem; font-weight: 500; margin-top: 2rem; margin-bottom: 0.75rem; }
 .prose p { margin-bottom: 1.1rem; }
-.prose a { color: #C9A96E; text-decoration: underline; text-underline-offset: 3px; }
-.prose a:hover { opacity: 0.75; }
+/* 本文リンクはアンダーラインで区別（gold は action 専用のため、本文では下線のみ） */
+.prose a { color: #1C1C1A; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: #C9A96E; }
+.prose a:hover { color: #6B6B68; }
 .prose ul { list-style: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
 .prose li { margin-bottom: 0.3rem; }
 .prose strong { font-weight: 500; }

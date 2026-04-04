@@ -38,6 +38,9 @@ creator: "もりたさん・さとうさん"
 # 【任意】製作者のXアカウント（複数いる場合は代表者のアカウントを入力）
 creatorX: "@misosiru_sample4"
 
+# 【任意】この作品が属するエリアのスラッグ（src/content/regions/ のファイル名と合わせてください）
+region: "misogawa"
+
 # 【必須】投稿日（YYYY-MM-DD）
 pubDate: 2024-08-20
 

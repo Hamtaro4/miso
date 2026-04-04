@@ -14,35 +14,55 @@ const dateStr = new Intl.DateTimeFormat('ja-JP', { year:'numeric', month:'long',
 {variant === 'compact' ? (
   <article class="news-compact">
     <a href={`${import.meta.env.BASE_URL}/news/${slug}`} class="news-compact-link">
-      <time datetime={pubDate.toISOString()} class="nc-date label">{dateStr}</time>
-      <span class="nc-cat label">{category}</span>
-      <h3 class="nc-title card-title">{title}</h3>
+      <time datetime={pubDate.toISOString()} class="nc-date">{dateStr}</time>
+      <span class="nc-cat-badge">{category}</span>
+      <h3 class="nc-title">{title}</h3>
     </a>
   </article>
 ) : (
   <article class="news-default">
     <a href={`${import.meta.env.BASE_URL}/news/${slug}`} class="news-link">
       <div class="nd-meta">
-        <time datetime={pubDate.toISOString()} class="label">{dateStr}</time>
-        <span class="label">{category}</span>
+        <time datetime={pubDate.toISOString()} class="nd-date">{dateStr}</time>
+        <span class="nc-cat-badge">{category}</span>
       </div>
-      <h3 class="nd-title card-title">{title}</h3>
+      <h3 class="nd-title">{title}</h3>
       <p class="nd-desc">{description}</p>
     </a>
   </article>
 )}
 
 <style>
+/* カテゴリバッジ: 種別を一目で判別できるように */
+.nc-cat-badge {
+  display: inline-block;
+  padding: 0.1rem 0.45rem;
+  background: #EEEDEA;
+  border-radius: 2px;
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  color: #6B6B68;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 /* compact */
-.news-compact { border-bottom: 1px solid #E5E4E0; padding: 1.1rem 0; }
+.news-compact {
+  border-bottom: 1px solid #E5E4E0;
+  padding: 1rem 0;
+}
 .news-compact-link {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.4rem 1rem;
+  align-items: center;
+  gap: 0.4rem 0.75rem;
 }
-.nc-date { min-width: 7rem; color: #6B6B68; }
-.nc-cat  { color: #6B6B68; }
+.nc-date {
+  font-size: 0.7rem;
+  color: #9D9C99;
+  min-width: 7rem;
+  flex-shrink: 0;
+}
 .nc-title {
   font-size: 0.875rem;
   font-weight: 400;
@@ -52,25 +72,38 @@ const dateStr = new Intl.DateTimeFormat('ja-JP', { year:'numeric', month:'long',
   display: -webkit-box;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
+  /* flex で幅が足りなければ折り返す */
+  flex: 1 1 12rem;
+  min-width: 0;
 }
-.news-compact-link:hover .nc-title { color: #C9A96E; }
+.news-compact-link:hover .nc-title { color: #6B6B68; }
 
 /* default */
 .news-default { border-bottom: 1px solid #E5E4E0; padding: 1.75rem 0; }
 .news-link { display: block; }
-.nd-meta { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.6rem; color: #6B6B68; }
+.nd-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.65rem;
+}
+.nd-date {
+  font-size: 0.7rem;
+  color: #9D9C99;
+}
 .nd-title {
   font-size: 1rem;
   font-weight: 500;
   color: #1C1C1A;
   margin-bottom: 0.4rem;
+  line-height: 1.5;
   transition: color 0.2s;
 }
-.news-link:hover .nd-title { color: #C9A96E; }
+.news-link:hover .nd-title { color: #6B6B68; }
 .nd-desc {
   font-size: 0.875rem;
   color: #6B6B68;
-  line-height: 1.7;
+  line-height: 1.75;
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;

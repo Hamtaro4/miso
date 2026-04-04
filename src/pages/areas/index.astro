@@ -1,0 +1,140 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { SITE } from '@/config';
+
+const BASE = import.meta.env.BASE_URL;
+
+const allRegions = await getCollection('regions');
+const regions = allRegions.sort((a, b) => a.data.order - b.data.order);
+
+// 各エリアの作品数を集計
+const allWorks = await getCollection('works', ({ data }) => !data.draft);
+const workCountByRegion = allWorks.reduce<Record<string, number>>((acc, w) => {
+  if (w.data.region) acc[w.data.region] = (acc[w.data.region] ?? 0) + 1;
+  return acc;
+}, {});
+---
+
+<BaseLayout
+  title="AREAS"
+  description={`${SITE.name}のゲーム内エリア一覧。各地域の概要と建物を紹介します。`}
+>
+  <div class="page-header site-container">
+    <h1 class="page-title-text">AREAS</h1>
+    <p class="page-lead">ゲーム内エリアの紹介</p>
+  </div>
+
+  <section class="areas-section site-container" aria-label="エリア一覧">
+    {regions.length === 0 ? (
+      <p class="empty-msg">エリア情報を準備中です。</p>
+    ) : (
+      <div class="areas-grid">
+        {regions.map((r) => {
+          const count = workCountByRegion[r.slug] ?? 0;
+          return (
+            <a href={`${BASE}/areas/${r.slug}`} class="area-card">
+              <div class="area-img img-placeholder">
+                {r.data.areaImage && (
+                  <img
+                    src={`${BASE}${r.data.areaImage}`}
+                    alt={r.data.title}
+                    width="800"
+                    height="450"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                )}
+              </div>
+              <div class="area-info">
+                {r.data.titleEn && <span class="area-en">{r.data.titleEn}</span>}
+                <h2 class="area-title">{r.data.title}</h2>
+                <p class="area-desc">{r.data.description}</p>
+                <span class="area-count">{count} 件の建物</span>
+              </div>
+            </a>
+          );
+        })}
+      </div>
+    )}
+  </section>
+</BaseLayout>
+
+<style>
+.page-header {
+  padding-top: 10rem;
+  padding-bottom: 3.5rem;
+}
+.page-title-text {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+}
+.page-lead {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  color: #9D9C99;
+}
+
+.areas-section { padding-bottom: 8rem; }
+
+.areas-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3rem;
+}
+@media (min-width: 768px) {
+  .areas-grid { grid-template-columns: 1fr 1fr; gap: 2.5rem; }
+}
+
+/* カード */
+.area-card {
+  display: block;
+  color: inherit;
+}
+.area-card:hover .area-img img { transform: scale(1.03); }
+.area-card:hover .area-title { color: #6B6B68; }
+
+.area-img {
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #E5E4E0;
+  margin-bottom: 1rem;
+}
+.area-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.area-info { display: flex; flex-direction: column; gap: 0.4rem; }
+
+.area-en {
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #9D9C99;
+}
+.area-title {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #1C1C1A;
+  transition: color 0.2s;
+}
+.area-desc {
+  font-size: 0.8rem;
+  color: #6B6B68;
+  line-height: 1.7;
+  margin-top: 0.2rem;
+}
+.area-count {
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: #9D9C99;
+  margin-top: 0.25rem;
+}
+
+.empty-msg { text-align: center; color: #6B6B68; padding: 6rem 0; }
+</style>
