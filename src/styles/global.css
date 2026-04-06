@@ -170,6 +170,31 @@ a    { color: inherit; text-decoration: none; }
 .prose li { margin-bottom: 0.3rem; }
 .prose strong { font-weight: 500; }
 
+/* ===== markdown 内のインライン画像 ===== */
+/* 使い方: ![キャプション文](/images/areas/xxx/photo.jpg) */
+.prose img {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin: 2.5rem 0 0.75rem;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  background: #E5E4E0;
+}
+/* 画像の直後に斜体テキストを書くとキャプションになる */
+/* 例: ![alt](path) *キャプション文* */
+.prose img ~ em:first-of-type {
+  display: block;
+  font-size: 0.7rem;
+  font-style: normal;
+  color: #9D9C99;
+  letter-spacing: 0.05em;
+  margin-bottom: 2.5rem;
+  text-align: center;
+}
+/* 画像だけの <p> タグの余白を調整 */
+.prose p:has(> img:only-child) { margin-bottom: 0; }
+
 /* ===== アニメーション ===== */
 @keyframes scrollDown {
   0%   { transform: translateY(-100%); }
