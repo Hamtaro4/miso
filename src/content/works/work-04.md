@@ -39,7 +39,7 @@ creator: "もりたさん・さとうさん"
 creatorX: "@misosiru_sample4"
 
 # 【任意】この作品が属するエリアのスラッグ（src/content/regions/ のファイル名と合わせてください）
-region: "misogawa"
+region: "sumiyoshi"
 
 # 【必須】投稿日（YYYY-MM-DD）
 pubDate: 2024-08-20
