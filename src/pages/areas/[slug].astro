@@ -190,6 +190,121 @@ const nextRegion = currentIdx < allRegions.length - 1 ? allRegions[currentIdx + 
 
 </BaseLayout>
 
+<script>
+// Markdown renders consecutive images as: <p><img><em>caption</em><img><em>caption</em>...</p>
+// We find <p> elements with 2+ img children and convert them to sliders.
+function initProseSliders() {
+  document.querySelectorAll('.area-prose').forEach(function(prose) {
+    Array.from(prose.querySelectorAll('p')).forEach(function(p) {
+      var imgs = Array.from(p.querySelectorAll('img'));
+      if (imgs.length < 2) return;
+
+      // Extract (img, caption?) pairs by walking childNodes
+      var slides = [];
+      var nodes = Array.from(p.childNodes);
+      var i = 0;
+      while (i < nodes.length) {
+        var node = nodes[i];
+        if (node.nodeType === 1 && node.tagName === 'IMG') {
+          var caption = '';
+          // Skip text nodes, look for immediately following EM
+          var j = i + 1;
+          while (j < nodes.length && nodes[j].nodeType === 3) j++; // skip whitespace
+          if (j < nodes.length && nodes[j].nodeType === 1 && nodes[j].tagName === 'EM') {
+            caption = nodes[j].textContent || '';
+            i = j + 1;
+          } else {
+            i++;
+          }
+          slides.push({ img: node, caption: caption });
+        } else {
+          i++;
+        }
+      }
+
+      if (slides.length < 2) return;
+
+      // Build slider
+      var wrapper = document.createElement('div');
+      wrapper.className = 'prose-slider';
+
+      var track = document.createElement('div');
+      track.className = 'prose-slider-track';
+      wrapper.appendChild(track);
+
+      slides.forEach(function(s, idx) {
+        var slide = document.createElement('div');
+        slide.className = 'prose-slide' + (idx === 0 ? ' is-active' : '');
+        var img = s.img.cloneNode();
+        slide.appendChild(img);
+        if (s.caption) {
+          var cap = document.createElement('span');
+          cap.className = 'prose-slide-caption';
+          cap.textContent = s.caption;
+          slide.appendChild(cap);
+        }
+        track.appendChild(slide);
+      });
+
+      var prev = document.createElement('button');
+      prev.className = 'prose-slider-btn prose-slider-prev';
+      prev.setAttribute('aria-label', '前の写真');
+      prev.innerHTML = '&#8592;';
+
+      var next = document.createElement('button');
+      next.className = 'prose-slider-btn prose-slider-next';
+      next.setAttribute('aria-label', '次の写真');
+      next.innerHTML = '&#8594;';
+
+      var dotsWrap = document.createElement('div');
+      dotsWrap.className = 'prose-slider-dots';
+
+      wrapper.appendChild(prev);
+      wrapper.appendChild(next);
+      wrapper.appendChild(dotsWrap);
+
+      var current = 0;
+      var slideEls = Array.from(track.querySelectorAll('.prose-slide'));
+
+      function buildDots() {
+        dotsWrap.innerHTML = '';
+        slides.forEach(function(_, idx) {
+          var d = document.createElement('button');
+          d.className = 'prose-dot' + (idx === 0 ? ' is-active' : '');
+          d.setAttribute('aria-label', '写真 ' + (idx + 1));
+          d.addEventListener('click', function() { goTo(idx); });
+          dotsWrap.appendChild(d);
+        });
+      }
+
+      function goTo(idx) {
+        slideEls[current].classList.remove('is-active');
+        if (dotsWrap.children[current]) dotsWrap.children[current].classList.remove('is-active');
+        current = (idx + slides.length) % slides.length;
+        slideEls[current].classList.add('is-active');
+        if (dotsWrap.children[current]) dotsWrap.children[current].classList.add('is-active');
+      }
+
+      prev.addEventListener('click', function() { goTo(current - 1); });
+      next.addEventListener('click', function() { goTo(current + 1); });
+      buildDots();
+
+      // Touch swipe
+      var startX = 0;
+      track.addEventListener('touchstart', function(e) { startX = e.touches[0].clientX; }, { passive: true });
+      track.addEventListener('touchend', function(e) {
+        var dx = e.changedTouches[0].clientX - startX;
+        if (Math.abs(dx) > 40) goTo(current + (dx < 0 ? 1 : -1));
+      }, { passive: true });
+
+      p.parentNode.replaceChild(wrapper, p);
+    });
+  });
+}
+
+document.addEventListener('astro:page-load', initProseSliders);
+</script>
+
 <style>
 /* ===== ヒーロー画像あり ===== */
 .area-hero-img {
@@ -430,5 +545,85 @@ const nextRegion = currentIdx < allRegions.length - 1 ? allRegions[currentIdx + 
   transition: color 0.2s;
 }
 .back-link:hover { color: #1C1C1A; }
+
+/* ===== インライン画像スライダー（:global = JS生成要素に適用） ===== */
+:global(.prose-slider) {
+  position: relative;
+  margin: 2.5rem 0;
+}
+:global(.prose-slider-track) {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: #E5E4E0;
+  overflow: hidden;
+}
+:global(.prose-slide) {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+:global(.prose-slide.is-active) {
+  opacity: 1;
+  pointer-events: auto;
+}
+:global(.prose-slide img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  margin: 0;
+}
+:global(.prose-slide-caption) {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: block;
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.85);
+  letter-spacing: 0.05em;
+  text-align: center;
+  padding: 0.5rem 3rem;
+  background: linear-gradient(to top, rgba(28,28,26,0.65) 0%, transparent 100%);
+}
+:global(.prose-slider-btn) {
+  position: absolute;
+  top: calc(50% - 1.5rem); /* caption の高さ分だけ上に */
+  transform: translateY(-50%);
+  z-index: 10;
+  background: rgba(28,28,26,0.45);
+  color: #fff;
+  border: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+:global(.prose-slider-btn:hover) { background: rgba(28,28,26,0.75); }
+:global(.prose-slider-prev) { left: 0; }
+:global(.prose-slider-next) { right: 0; }
+:global(.prose-slider-dots) {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0 0;
+}
+:global(.prose-dot) {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #D1D0CD;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.2s;
+}
+:global(.prose-dot.is-active) { background: #1C1C1A; }
 
 </style>
