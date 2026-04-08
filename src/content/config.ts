@@ -186,6 +186,13 @@ const regionsCollection = defineCollection({
     // 【任意】制作状況（例: "制作中"、"完成"）
     status: z.string().optional(),
 
+    // 【任意】風景スライダーの写真一覧
+    // src: 画像パス、caption: 写真の説明文（省略可）
+    photos: z.array(z.object({
+      src:     z.string(),
+      caption: z.string().optional(),
+    })).default([]),
+
   }),
 });
 

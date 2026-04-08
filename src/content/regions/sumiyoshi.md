@@ -42,6 +42,18 @@ officeCoords: "940 17 -730"
 
 # 【任意】制作状況
 status: "制作中"
+
+# 【任意】風景スライダーの写真
+# ページ上部（基本情報の下）に横スライドで表示されます
+# src: public/images/areas/sumiyoshi/ に入れた画像のパス
+# caption: 写真の下に表示する説明文（省略可）
+photos:
+  - src: "/images/areas/sumiyoshi/overview.jpg"
+    caption: "住吉区 全景 — 住宅街と商業エリアが混在する市内最大規模の区"
+  - src: "/images/areas/sumiyoshi/park.jpg"
+    caption: "住吉公園 — 市内最大の敷地面積を誇る区民の憩いの場"
+  - src: "/images/areas/sumiyoshi/hub.jpg"
+    caption: "住吉区役所 — 味噌汁市本土へのhubとして機能している"
 ---
 
 <!--

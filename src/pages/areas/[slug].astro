@@ -59,6 +59,47 @@ const nextRegion = currentIdx < allRegions.length - 1 ? allRegions[currentIdx + 
     )}
   </div>
 
+  <!-- 風景スライダー -->
+  {region.data.photos.length > 0 && (
+    <div class="photo-slider-wrap" aria-label="エリア風景写真">
+      <div class="slider-track" id="slider-track">
+        {region.data.photos.map((photo, i) => (
+          <div class="slide" aria-label={`写真 ${i + 1} / ${region.data.photos.length}`}>
+            <img
+              src={`${BASE}${photo.src}`}
+              alt={photo.caption ?? region.data.title}
+              width="1280"
+              height="720"
+              loading={i === 0 ? 'eager' : 'lazy'}
+              decoding="async"
+            />
+            {photo.caption && (
+              <p class="slide-caption">{photo.caption}</p>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {region.data.photos.length > 1 && (
+        <>
+          <button class="slider-btn slider-prev" aria-label="前の写真" id="slider-prev">←</button>
+          <button class="slider-btn slider-next" aria-label="次の写真" id="slider-next">→</button>
+          <div class="slider-dots" id="slider-dots" role="tablist">
+            {region.data.photos.map((_, i) => (
+              <button
+                class:list={['dot', i === 0 && 'is-active']}
+                aria-label={`写真 ${i + 1}`}
+                data-index={i}
+                role="tab"
+                aria-selected={i === 0 ? 'true' : 'false'}
+              />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  )}
+
   <div class="area-body site-container">
 
     <div class="area-body-inner">
@@ -430,4 +471,153 @@ const nextRegion = currentIdx < allRegions.length - 1 ? allRegions[currentIdx + 
   transition: color 0.2s;
 }
 .back-link:hover { color: #1C1C1A; }
+
+/* ===== 風景スライダー ===== */
+.photo-slider-wrap {
+  position: relative;
+  background: #1C1C1A;
+  user-select: none;
+}
+
+.slider-track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.slider-track::-webkit-scrollbar { display: none; }
+
+.slide {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  position: relative;
+}
+.slide img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  display: block;
+  opacity: 0.9;
+}
+@media (max-width: 640px) {
+  .slide img { aspect-ratio: 4 / 3; }
+}
+
+.slide-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 3rem 1.5rem 1.25rem;
+  background: linear-gradient(to top, rgba(28,28,26,0.75) 0%, transparent 100%);
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.85);
+  letter-spacing: 0.05em;
+  line-height: 1.5;
+}
+
+/* 前後ボタン */
+.slider-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(28,28,26,0.5);
+  border: none;
+  color: #fff;
+  width: 2.75rem;
+  height: 2.75rem;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  z-index: 2;
+  backdrop-filter: blur(4px);
+}
+.slider-btn:hover { background: rgba(28,28,26,0.8); }
+.slider-prev { left: 1rem; }
+.slider-next { right: 1rem; }
+@media (max-width: 480px) {
+  .slider-btn { width: 2.25rem; height: 2.25rem; font-size: 0.875rem; }
+  .slider-prev { left: 0.5rem; }
+  .slider-next { right: 0.5rem; }
+}
+
+/* ドットナビ */
+.slider-dots {
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+  z-index: 2;
+}
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.4);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.2s, transform 0.2s;
+}
+.dot.is-active {
+  background: #fff;
+  transform: scale(1.3);
+}
 </style>
+
+<script>
+  function initSlider() {
+    const track = document.getElementById('slider-track');
+    const prevBtn = document.getElementById('slider-prev');
+    const nextBtn = document.getElementById('slider-next');
+    const dotsWrap = document.getElementById('slider-dots');
+    if (!track) return;
+
+    const dots = dotsWrap ? [...dotsWrap.querySelectorAll<HTMLButtonElement>('.dot')] : [];
+    let current = 0;
+
+    function goTo(index: number) {
+      const slides = track!.querySelectorAll<HTMLElement>('.slide');
+      if (!slides.length) return;
+      current = Math.max(0, Math.min(index, slides.length - 1));
+      track!.scrollTo({ left: slides[current].offsetLeft, behavior: 'smooth' });
+      dots.forEach((d, i) => {
+        d.classList.toggle('is-active', i === current);
+        d.setAttribute('aria-selected', String(i === current));
+      });
+    }
+
+    prevBtn?.addEventListener('click', () => goTo(current - 1));
+    nextBtn?.addEventListener('click', () => goTo(current + 1));
+    dots.forEach((dot, i) => dot.addEventListener('click', () => goTo(i)));
+
+    // スクロールで現在位置を同期
+    let scrollTimer: ReturnType<typeof setTimeout>;
+    track.addEventListener('scroll', () => {
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(() => {
+        const slides = [...track.querySelectorAll<HTMLElement>('.slide')];
+        const idx = slides.findIndex(s =>
+          Math.abs(s.offsetLeft - track.scrollLeft) < s.offsetWidth / 2
+        );
+        if (idx !== -1 && idx !== current) {
+          current = idx;
+          dots.forEach((d, i) => {
+            d.classList.toggle('is-active', i === current);
+            d.setAttribute('aria-selected', String(i === current));
+          });
+        }
+      }, 50);
+    }, { passive: true });
+  }
+
+  initSlider();
+  document.addEventListener('astro:page-load', initSlider);
+</script>
