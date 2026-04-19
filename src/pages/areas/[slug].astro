@@ -568,12 +568,13 @@ document.addEventListener('astro:page-load', initProseSliders);
   opacity: 1;
   pointer-events: auto;
 }
-:global(.prose-slide img) {
+:global(.prose-slider .prose-slide img) {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
   margin: 0;
+  aspect-ratio: unset;
 }
 :global(.prose-slide-caption) {
   position: absolute;
