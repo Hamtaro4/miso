@@ -4,7 +4,12 @@
       "Bash(grep -n 'href=\"\"/' ~/Desktop/misoHP3/src/pages/index.astro ~/Desktop/misoHP3/src/pages/about.astro ~/Desktop/misoHP3/src/pages/recruit.astro ~/Desktop/misoHP3/src/pages/works/index.astro ~/Desktop/misoHP3/src/pages/news/index.astro ~/Desktop/misoHP3/src/pages/works/[slug].astro ~/Desktop/misoHP3/src/pages/news/[slug].astro)",
       "Bash(npm run:*)",
       "Bash(curl -s -o /dev/null -w \"%{http_code} %{redirect_url}\" https://hamtaro4.github.io/miso/)",
-      "Bash(curl -s https://hamtaro4.github.io/miso/)"
+      "Bash(curl -s https://hamtaro4.github.io/miso/)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(git show *)",
+      "mcp__Claude_Preview__preview_start"
     ]
   }
 }
